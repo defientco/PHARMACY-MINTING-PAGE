@@ -82,6 +82,8 @@ function SaleStatus({
 
     const approve =  async () => {
         const tx = await getChillTokenContract().approve(collection.address, ethers.constants.MaxUint256)
+        await tx.wait()
+        toast.success("Approved $CHILL! You can now buy a music NFT.")
         return tx
       }
      
