@@ -65,6 +65,7 @@ function SaleStatus({
 
     const allowance = async () => {
       console.log("GETTING ALLOWANCE FOR", account.address)
+      toast.success(`GETTING ALLOWANCE FOR ${account.address}`)
       console.log("COLLECTION", collection)
       const allowance = await getChillTokenContract().allowance(account.address, collection.address)
       console.log("allowance", allowance)
