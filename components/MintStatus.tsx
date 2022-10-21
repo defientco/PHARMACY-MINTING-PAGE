@@ -88,7 +88,6 @@ function SaleStatus({
   const getStakingContract = async () => {
     const sdk = new DecentSDK(activeChain?.id, signer);
     const stakingContract = await staking.getContract(sdk, process.env.NEXT_PUBLIC_STAKING_CONTRACT);
-    console.log("stakingContract", stakingContract)
     return stakingContract
   };
 
@@ -99,7 +98,6 @@ function SaleStatus({
     for (let i = 0; i < stakedPills.length; i++) {
       intArray.push(stakedPills[i].toNumber());
     }
-    console.log("STAKED TOKENS", intArray)
     return intArray;
   };
 
@@ -150,8 +148,6 @@ function SaleStatus({
 
       const priceDifference = BigNumber.from(price).sub(balance)
       if (priceDifference.gt(0)) {
-        console.log("PRICE", price)
-        console.log("balance", balance)
         toast.error(`Not enough $CHILL. You need ${Math.round(Number(ethers.utils.formatEther(priceDifference)) * 100) / 100} more $CHILL`)
         await claim()
       }
@@ -162,7 +158,6 @@ function SaleStatus({
       const tx: ContractTransaction | undefined = presale
         ? await dropProvider.purchasePresale(mintCounter, allowlistEntry)
         : await dropProvider.purchase(mintCounter)
-      console.log({ tx })
       setAwaitingApproval(false)
       setIsMinting(true)
       if (tx) {
