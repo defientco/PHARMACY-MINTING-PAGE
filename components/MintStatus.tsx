@@ -67,9 +67,12 @@ function SaleStatus({
       console.log("GETTING ALLOWANCE FOR", account.address)
       toast.success(`GETTING ALLOWANCE FOR ${account.address}`)
       console.log("COLLECTION", collection)
-      const allowance = await getChillTokenContract().allowance(account.address, collection.address)
+      const contract = getChillTokenContract();
+      const allowance = await contract.allowance(account.address, collection.address)
       console.log("allowance", allowance)
-      const balanceOf = await getChillTokenContract().balanceOf(account.address)
+      toast.success(`You have allowance of ${allowance}`)
+
+      const balanceOf = await contract.balanceOf(account.address)
       toast.success(`You have balance of ${balanceOf}`)
       return allowance
     }
