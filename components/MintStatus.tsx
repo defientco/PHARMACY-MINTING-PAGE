@@ -115,6 +115,7 @@ function SaleStatus({
         throw 'Error creating transaction! Please try again'
       }
     } catch (e: any) {
+      toast.error(e)
       setErrors(cleanErrors(e))
       setAwaitingApproval(false)
       setIsMinting(false)
