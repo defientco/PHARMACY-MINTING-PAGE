@@ -36,6 +36,7 @@ export const getServerSideProps: GetStaticProps = async (context) => {
 
   // Get Sale Details
   const saleDetails = await contract.saleDetails();
+  console.log("saleDetails", saleDetails)
 
   const maxSalePurchasePerAddress = saleDetails.maxSalePurchasePerAddress.toString() === "0" ? 1000001 : saleDetails.maxSalePurchasePerAddress.toString()
   const erc721Drop = {
@@ -57,6 +58,7 @@ export const getServerSideProps: GetStaticProps = async (context) => {
     },
     salesConfig: {
       publicSalePrice: saleDetails.publicSalePrice.toString(),
+      erc20PaymentToken: saleDetails.erc20PaymentToken,
       maxSalePurchasePerAddress,
       publicSaleStart: saleDetails.publicSaleStart.toString(),
       publicSaleEnd: saleDetails.publicSaleEnd.toString(),

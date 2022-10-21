@@ -1,4 +1,4 @@
-import { allChains, useAccount, useNetwork, useSigner } from 'wagmi'
+import { allChains, useNetwork, useSigner } from 'wagmi'
 import React, {
   ReactNode,
   useCallback,
@@ -18,8 +18,6 @@ import chillAbi from '@lib/ChillToken-abi.json'
 
 export interface ERC721DropProviderState {
   purchase: (quantity: number) => Promise<ContractTransaction | undefined>
-  approve: () => Promise<ContractTransaction | undefined>
-  allowance: () => Promise<BigNumber | undefined>
   purchasePresale: (
     quantity: number,
     allowlistEntry?: AllowListEntry
@@ -57,7 +55,6 @@ function ERC721DropContractProvider({
   chainId?: number
 }) {
   const { data: signer } = useSigner()
-  const { data: account } = useAccount()
   const { activeChain } = useNetwork()
   const [userMintedCount, setUserMintedCount] = useState<number>()
   const [totalMinted, setTotalMinted] = useState<number>()
@@ -76,40 +73,27 @@ function ERC721DropContractProvider({
     [signer, erc721DropAddress]
   )
 
-  useEffect(() => {
-    ;(async () => {
-      if (saleDetails || !drop || !signer) {
-        return
-      }
-      const config = (await drop.saleDetails()) as unknown
-      setSaleDetails(config as EditionSaleDetails)
-    })()
-  }, [drop, saleDetails, signer])
+  const loadSalesDetails = async () => {
+    console.log("saleDetails", saleDetails)
+    console.log("saleDetails", saleDetails)
+    console.log("saleDetails", saleDetails)
+    if (saleDetails || !drop || !signer) {
+      return
+    }
+    const config = (await drop.saleDetails()) as unknown
+    console.log("UPDATING SALES DETAILS", config)
+    setSaleDetails(config as EditionSaleDetails)
+    return config as EditionSaleDetails
+  }
 
-  const allowance = useCallback(
-    async () => {
-      if (!drop || !saleDetails) return
-      const chillToken = new ethers.Contract(saleDetails?.erc20PaymentToken, chillAbi, correctNetwork ? signer : provider)
-      const allowance = await chillToken.allowance(account.address, drop.address)
-      return allowance
-    },
-    [drop, saleDetails]
-  )
+  useEffect(() => {
+    loadSalesDetails()
+  }, [drop, saleDetails, signer])
 
   const purchase = useCallback(
     async (quantity: number) => {
       if (!drop || !saleDetails) return
       const tx = await drop.purchase(quantity)
-      return tx
-    },
-    [drop, saleDetails]
-  )
-
-  const approve = useCallback(
-    async () => {
-      if (!drop || !saleDetails) return
-      const chillToken = new ethers.Contract(saleDetails?.erc20PaymentToken, chillAbi, correctNetwork ? signer : provider)
-      const tx = await chillToken.approve(drop.address, ethers.constants.MaxUint256)
       return tx
     },
     [drop, saleDetails]
@@ -209,7 +193,7 @@ function ERC721DropContractProvider({
       await tx.wait(2)
 
       const updatedConfig = (await drop.saleDetails()) as unknown
-
+      console.log("updateSalesConfig", updatedConfig)
       setSaleDetails(updatedConfig as EditionSaleDetails)
     },
     [drop]
@@ -275,8 +259,6 @@ function ERC721DropContractProvider({
   return (
     <ERC721DropContext.Provider
       value={{
-        allowance,
-        approve,
         purchase,
         purchasePresale,
         isAdmin,

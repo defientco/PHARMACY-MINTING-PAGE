@@ -13,7 +13,7 @@ import {
 import React, { useEffect, useCallback, useMemo, useState } from 'react'
 import { SubgraphERC721Drop } from 'models/subgraph'
 import { useERC721DropContract } from 'providers/ERC721DropProvider'
-import { useAccount, useNetwork } from 'wagmi'
+import { useAccount, useNetwork, useSigner } from 'wagmi'
 import { formatCryptoVal } from 'lib/numbers'
 import { OPEN_EDITION_SIZE } from 'lib/constants'
 import { parseInt } from 'lodash'
@@ -22,7 +22,8 @@ import { useSaleStatus } from 'hooks/useSaleStatus'
 import { CountdownTimer } from 'components/CountdownTimer'
 import { cleanErrors } from 'lib/errors'
 import { AllowListEntry } from 'lib/merkle-proof'
-import { BigNumber, ContractTransaction } from 'ethers'
+import { BigNumber, ContractTransaction, ethers } from 'ethers'
+import chillAbi from '@lib/ChillToken-abi.json'
 
 function SaleStatus({
   collection,
@@ -43,6 +44,7 @@ function SaleStatus({
 }) {
   const { data: account } = useAccount()
   const { switchNetwork } = useNetwork()
+  const { data: signer } = useSigner()
 
   const dropProvider = useERC721DropContract()
   const { chainId, correctNetwork } = useERC721DropContract()
@@ -56,17 +58,36 @@ function SaleStatus({
       presale,
     })
 
+    const getChillTokenContract = () => {
+      return new ethers.Contract(collection?.salesConfig?.erc20PaymentToken, chillAbi, signer)
+    }
+
+    const allowance = async () => {
+      console.log("GETTING ALLOWANCE FOR", account.address)
+      console.log("COLLECTION", collection)
+      const allowance = await getChillTokenContract().allowance(account.address, collection.address)
+      console.log("allowance", allowance)
+      return allowance
+    }
+
+    const approve =  async () => {
+        const tx = await getChillTokenContract().approve(collection.address, ethers.constants.MaxUint256)
+        return tx
+      }
+     
+
   const handleMint = useCallback(async () => {
     setIsMinted(false)
     setAwaitingApproval(true)
     setErrors(undefined)
     try {
-      const allow = await dropProvider.allowance();
+      console.log("ACCOUNT<", account)
+      const allow = await allowance();
       console.log("ALLOWANCE", allow)
       const price = collection.salesConfig.publicSalePrice;
       console.log("PRICE", price)
       if (allow.sub(BigNumber.from(price).mul(mintCounter)).lt(0)) {
-        await dropProvider.approve();
+        await approve();
       }
       const tx: ContractTransaction | undefined = presale
         ? await dropProvider.purchasePresale(mintCounter, allowlistEntry)
