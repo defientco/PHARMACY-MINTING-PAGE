@@ -242,7 +242,7 @@ export function MintStatus({
             <Heading size="sm" className={priceDateHeading}>
               {internalPrice === '0'
                 ? 'Free'
-                : `${formatCryptoVal(Number(internalPrice) * (mintCounter || 1))} ETH`}
+                : `${formatCryptoVal(Number(internalPrice) * (mintCounter || 1))} $CHILL`}
             </Heading>
           </Stack>
 
