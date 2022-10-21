@@ -21,6 +21,7 @@ import { ipfsImage } from '@lib/helpers'
 import { header, maxWidth, border, heroImage } from 'styles/styles.css'
 import { useSaleStatus } from 'hooks/useSaleStatus'
 import { Spinner } from 'degen'
+import Image from 'next/image'
 
 interface HomePageProps {
   collection: SubgraphERC721Drop;
@@ -85,11 +86,12 @@ const HomePage: NextPage<HomePageProps> = ({ collection, chainId }) => {
                 chainId={chainId}
               >
 <Well className={border} p="x6" style={{ borderBottom: 0 }}>
-              {!ipfsImage(collection.editionMetadata.imageURI) ? <Spinner size="large" color="black" /> : <img
-                className={heroImage}
+               <Image
+                width="500px"
+                height="500px"
                 src={ipfsImage(collection.editionMetadata.imageURI)}
                 alt={collection.name}
-              />}
+              />
               {collection.editionMetadata?.mimeType?.includes?.("audio") && <audio controls>
                 <source src={ipfsImage(collection.editionMetadata.animationURI)} type={collection.editionMetadata.mimeType} />
               Your browser does not support the audio element.
