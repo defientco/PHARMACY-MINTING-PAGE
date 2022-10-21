@@ -13,7 +13,7 @@ import {
 import React, { useEffect, useCallback, useMemo, useState } from 'react'
 import { SubgraphERC721Drop } from 'models/subgraph'
 import { useERC721DropContract } from 'providers/ERC721DropProvider'
-import { useAccount, useNetwork } from 'wagmi'
+import { useAccount, useNetwork, useSigner } from 'wagmi'
 import { formatCryptoVal } from 'lib/numbers'
 import { OPEN_EDITION_SIZE } from 'lib/constants'
 import { parseInt } from 'lodash'
@@ -22,7 +22,12 @@ import { useSaleStatus } from 'hooks/useSaleStatus'
 import { CountdownTimer } from 'components/CountdownTimer'
 import { cleanErrors } from 'lib/errors'
 import { AllowListEntry } from 'lib/merkle-proof'
-import type { ContractTransaction } from 'ethers'
+import { BigNumber, ContractTransaction, ethers } from 'ethers'
+import chillAbi from '@lib/ChillToken-abi.json'
+import { toast } from 'react-toastify'
+import {
+  DecentSDK, staking,
+} from "@decent.xyz/sdk";
 
 function SaleStatus({
   collection,
@@ -42,7 +47,8 @@ function SaleStatus({
   allowlistEntry?: AllowListEntry
 }) {
   const { data: account } = useAccount()
-  const { switchNetwork } = useNetwork()
+  const { activeChain, switchNetwork } = useNetwork()
+  const { data: signer } = useSigner()
 
   const dropProvider = useERC721DropContract()
   const { chainId, correctNetwork } = useERC721DropContract()
@@ -56,15 +62,102 @@ function SaleStatus({
       presale,
     })
 
-  const handleMint = useCallback(async () => {
+  const getChillTokenContract = () => {
+    return new ethers.Contract(collection?.salesConfig?.erc20PaymentToken, chillAbi, signer)
+  }
+
+  const allowance = async () => {
+    const contract = getChillTokenContract();
+    const allowance = await contract.allowance(account.address, collection.address)
+    return allowance
+  }
+
+  const balanceOf = async () => {
+    const contract = getChillTokenContract();
+    const balance = await contract.balanceOf(account.address)
+    return balance;
+  }
+
+  const approve =  async () => {
+    const tx = await getChillTokenContract().approve(collection.address, ethers.constants.MaxUint256)
+    await tx.wait()
+    toast.success("Approved $CHILL! You can now buy a music NFT.")
+    return tx
+  }
+
+  const getStakingContract = async () => {
+    const sdk = new DecentSDK(activeChain?.id, signer);
+    const stakingContract = await staking.getContract(sdk, process.env.NEXT_PUBLIC_STAKING_CONTRACT);
+    return stakingContract
+  };
+
+  const getStakedPills = async () => {
+    const contract = await getStakingContract();
+    const stakedPills = await contract.tokensOfOwner(account.address);
+    const intArray = [];
+    for (let i = 0; i < stakedPills.length; i++) {
+      intArray.push(stakedPills[i].toNumber());
+    }
+    return intArray;
+  };
+
+  const getUnclaimedChill = async (contract, tokenIds) => {
+    if (!contract) return;
+    try {
+      const unclaimedTokens = await contract.earningInfo(account.address, tokenIds);
+      const formattedChill =
+        Math.round(Number(ethers.utils.formatEther(unclaimedTokens.toString())) * 1000) /
+        1000;
+      return formattedChill;
+    } catch(error) {
+      console.error(error)
+    }
+  };
+
+  const claim = async () => {
+    const contract = await getStakingContract();
+    const tokenIds = await getStakedPills();
+    if (!contract.signer) {
+      toast.error("please connect wallet & try again");
+      await switchNetwork(parseInt(process.env.NEXT_PUBLIC_CHAIN_ID));
+      return;
+    }
+    const unclaimed = await getUnclaimedChill(contract, tokenIds)
+    if (unclaimed <= 0) {
+      toast.error("Sorry, you need $CHILL to buy this NFT. Please stake your pills to earn $CHILL.")
+      return;
+    }
+    try {
+      const tx = await contract.claim(tokenIds);
+      await tx.wait();
+      toast.success("Claimed!");
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+     
+
+  const handleMint = async () => {
     setIsMinted(false)
     setAwaitingApproval(true)
     setErrors(undefined)
     try {
+      const allow = await allowance();
+      const balance = await balanceOf();
+      const price = collection.salesConfig.publicSalePrice;
+
+      const priceDifference = BigNumber.from(price).sub(balance)
+      if (priceDifference.gt(0)) {
+        toast.error(`Not enough $CHILL. You need ${Math.round(Number(ethers.utils.formatEther(priceDifference)) * 100) / 100} more $CHILL`)
+        await claim()
+      }
+
+      if (allow.sub(BigNumber.from(price).mul(mintCounter)).lt(0)) {
+        await approve();
+      }
       const tx: ContractTransaction | undefined = presale
         ? await dropProvider.purchasePresale(mintCounter, allowlistEntry)
         : await dropProvider.purchase(mintCounter)
-      console.log({ tx })
       setAwaitingApproval(false)
       setIsMinting(true)
       if (tx) {
@@ -75,11 +168,12 @@ function SaleStatus({
         throw 'Error creating transaction! Please try again'
       }
     } catch (e: any) {
+      toast.error(e)
       setErrors(cleanErrors(e))
       setAwaitingApproval(false)
       setIsMinting(false)
     }
-  }, [dropProvider, mintCounter, allowlistEntry])
+  }
 
   if (saleIsFinished || isSoldOut) {
     return (

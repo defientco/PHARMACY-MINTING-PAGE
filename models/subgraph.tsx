@@ -2,6 +2,7 @@ import { BytesLike } from 'ethers'
 
 export interface SubgraphSalesConfig {
   publicSalePrice: string
+  erc20PaymentToken: string
   maxSalePurchasePerAddress: string
   publicSaleStart: string
   publicSaleEnd: string

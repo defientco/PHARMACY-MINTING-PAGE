@@ -4,6 +4,9 @@ const withVanillaExtract = createVanillaExtractPlugin()
 const nextConfig = {
   reactStrictMode: true,
   experimental: { outputFileTracing: true },
+  images: {
+    domains: ['chillrx.mypinata.cloud'],
+  },
   async headers() {
     return [
       {

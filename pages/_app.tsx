@@ -10,6 +10,7 @@ import { publicProvider } from 'wagmi/providers/public'
 import { ThemeProvider } from 'degen'
 import ERC721DropContractProvider from 'providers/ERC721DropProvider'
 import { ToastContainer } from 'react-toastify';
+import { alchemyProvider } from 'wagmi/providers/alchemy';
 
 const { chains, provider } = configureChains(
   [
@@ -17,7 +18,10 @@ const { chains, provider } = configureChains(
       (chain) => chain.id.toString() === process.env.NEXT_PUBLIC_CHAIN_ID
     )
   ],
-  [ publicProvider()]
+  [ 
+    alchemyProvider({ alchemyId: "ezyXM9BT43gERc4t37pvrR29sDYX81Ph" }),
+    publicProvider()
+  ]
 )
 
 const { connectors } = getDefaultWallets({
