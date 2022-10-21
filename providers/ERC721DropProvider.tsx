@@ -74,14 +74,10 @@ function ERC721DropContractProvider({
   )
 
   const loadSalesDetails = async () => {
-    console.log("saleDetails", saleDetails)
-    console.log("saleDetails", saleDetails)
-    console.log("saleDetails", saleDetails)
     if (saleDetails || !drop || !signer) {
       return
     }
     const config = (await drop.saleDetails()) as unknown
-    console.log("UPDATING SALES DETAILS", config)
     setSaleDetails(config as EditionSaleDetails)
     return config as EditionSaleDetails
   }
@@ -193,7 +189,6 @@ function ERC721DropContractProvider({
       await tx.wait(2)
 
       const updatedConfig = (await drop.saleDetails()) as unknown
-      console.log("updateSalesConfig", updatedConfig)
       setSaleDetails(updatedConfig as EditionSaleDetails)
     },
     [drop]

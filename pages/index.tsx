@@ -36,8 +36,6 @@ export const getServerSideProps: GetStaticProps = async (context) => {
 
   // Get Sale Details
   const saleDetails = await contract.saleDetails();
-  console.log("saleDetails", saleDetails)
-
   const maxSalePurchasePerAddress = saleDetails.maxSalePurchasePerAddress.toString() === "0" ? 1000001 : saleDetails.maxSalePurchasePerAddress.toString()
   const erc721Drop = {
     id: "string",
