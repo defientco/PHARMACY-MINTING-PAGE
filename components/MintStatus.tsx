@@ -25,6 +25,9 @@ import { AllowListEntry } from 'lib/merkle-proof'
 import { BigNumber, ContractTransaction, ethers } from 'ethers'
 import chillAbi from '@lib/ChillToken-abi.json'
 import { toast } from 'react-toastify'
+import {
+  DecentSDK, staking,
+} from "@decent.xyz/sdk";
 
 function SaleStatus({
   collection,
@@ -44,7 +47,7 @@ function SaleStatus({
   allowlistEntry?: AllowListEntry
 }) {
   const { data: account } = useAccount()
-  const { switchNetwork } = useNetwork()
+  const { activeChain, switchNetwork } = useNetwork()
   const { data: signer } = useSigner()
 
   const dropProvider = useERC721DropContract()
@@ -59,33 +62,81 @@ function SaleStatus({
       presale,
     })
 
-    const getChillTokenContract = () => {
-      return new ethers.Contract(collection?.salesConfig?.erc20PaymentToken, chillAbi, signer)
+  const getChillTokenContract = () => {
+    return new ethers.Contract(collection?.salesConfig?.erc20PaymentToken, chillAbi, signer)
+  }
+
+  const allowance = async () => {
+    const contract = getChillTokenContract();
+    const allowance = await contract.allowance(account.address, collection.address)
+    return allowance
+  }
+
+  const balanceOf = async () => {
+    const contract = getChillTokenContract();
+    const balance = await contract.balanceOf(account.address)
+    return balance;
+  }
+
+  const approve =  async () => {
+    const tx = await getChillTokenContract().approve(collection.address, ethers.constants.MaxUint256)
+    await tx.wait()
+    toast.success("Approved $CHILL! You can now buy a music NFT.")
+    return tx
+  }
+
+  const getStakingContract = async () => {
+    const sdk = new DecentSDK(activeChain?.id, signer);
+    const stakingContract = await staking.getContract(sdk, process.env.NEXT_PUBLIC_STAKING_CONTRACT);
+    console.log("stakingContract", stakingContract)
+    return stakingContract
+  };
+
+  const getStakedPills = async () => {
+    const contract = await getStakingContract();
+    const stakedPills = await contract.tokensOfOwner(account.address);
+    const intArray = [];
+    for (let i = 0; i < stakedPills.length; i++) {
+      intArray.push(stakedPills[i].toNumber());
     }
+    console.log("STAKED TOKENS", intArray)
+    return intArray;
+  };
 
-    const allowance = async () => {
-      console.log("GETTING ALLOWANCE FOR", account.address)
-      toast.success(`GETTING ALLOWANCE FOR ${account.address}`)
-      console.log("COLLECTION", collection)
-      const contract = getChillTokenContract();
-      toast.success(`CONTRACT ADDRESS ${contract.address}`)
-      toast.success(`collection.address ${collection.address}`)
-
-      const allowance = await contract.allowance(account.address, collection.address)
-      console.log("allowance", allowance)
-      toast.success(`You have allowance of ${allowance}`)
-
-      const balanceOf = await contract.balanceOf(account.address)
-      toast.success(`You have balance of ${balanceOf}`)
-      return allowance
+  const getUnclaimedChill = async (contract, tokenIds) => {
+    if (!contract) return;
+    try {
+      const unclaimedTokens = await contract.earningInfo(account.address, tokenIds);
+      const formattedChill =
+        Math.round(Number(ethers.utils.formatEther(unclaimedTokens.toString())) * 1000) /
+        1000;
+      return formattedChill;
+    } catch(error) {
+      console.error(error)
     }
+  };
 
-    const approve =  async () => {
-        const tx = await getChillTokenContract().approve(collection.address, ethers.constants.MaxUint256)
-        await tx.wait()
-        toast.success("Approved $CHILL! You can now buy a music NFT.")
-        return tx
-      }
+  const claim = async () => {
+    const contract = await getStakingContract();
+    const tokenIds = await getStakedPills();
+    if (!contract.signer) {
+      toast.error("please connect wallet & try again");
+      await switchNetwork(parseInt(process.env.NEXT_PUBLIC_CHAIN_ID));
+      return;
+    }
+    const unclaimed = await getUnclaimedChill(contract, tokenIds)
+    if (unclaimed <= 0) {
+      toast.error("Sorry, you need $CHILL to buy this NFT. Please stake your pills to earn $CHILL.")
+      return;
+    }
+    try {
+      const tx = await contract.claim(tokenIds);
+      await tx.wait();
+      toast.success("Claimed!");
+    } catch (error) {
+      toast.error(error);
+    }
+  };
      
 
   const handleMint = async () => {
@@ -93,12 +144,17 @@ function SaleStatus({
     setAwaitingApproval(true)
     setErrors(undefined)
     try {
-      console.log("ACCOUNT<", account)
       const allow = await allowance();
-      console.log("ALLOWANCE", allow)
+      const balance = await balanceOf();
       const price = collection.salesConfig.publicSalePrice;
-      console.log("PRICE", price)
-      toast.success(`Price is ${price}`)
+
+      const priceDifference = BigNumber.from(price).sub(balance)
+      if (priceDifference.gt(0)) {
+        console.log("PRICE", price)
+        console.log("balance", balance)
+        toast.error(`Not enough $CHILL. You need ${Math.round(Number(ethers.utils.formatEther(priceDifference)) * 100) / 100} more $CHILL`)
+        await claim()
+      }
 
       if (allow.sub(BigNumber.from(price).mul(mintCounter)).lt(0)) {
         await approve();
