@@ -24,6 +24,7 @@ import { cleanErrors } from 'lib/errors'
 import { AllowListEntry } from 'lib/merkle-proof'
 import { BigNumber, ContractTransaction, ethers } from 'ethers'
 import chillAbi from '@lib/ChillToken-abi.json'
+import { toast } from 'react-toastify'
 
 function SaleStatus({
   collection,
@@ -67,6 +68,7 @@ function SaleStatus({
       console.log("COLLECTION", collection)
       const allowance = await getChillTokenContract().allowance(account.address, collection.address)
       console.log("allowance", allowance)
+      toast.success(`You have allowance of ${allowance}`)
       return allowance
     }
 
@@ -86,6 +88,8 @@ function SaleStatus({
       console.log("ALLOWANCE", allow)
       const price = collection.salesConfig.publicSalePrice;
       console.log("PRICE", price)
+      toast.success(`Price is ${price}`)
+
       if (allow.sub(BigNumber.from(price).mul(mintCounter)).lt(0)) {
         await approve();
       }
