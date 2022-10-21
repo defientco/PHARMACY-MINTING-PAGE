@@ -18,7 +18,7 @@ import chillAbi from '@lib/ChillToken-abi.json'
 
 export interface ERC721DropProviderState {
   purchase: (quantity: number) => Promise<ContractTransaction | undefined>
-  approve: (quantity: number) => Promise<ContractTransaction | undefined>
+  approve: () => Promise<ContractTransaction | undefined>
   allowance: () => Promise<BigNumber | undefined>
   purchasePresale: (
     quantity: number,
