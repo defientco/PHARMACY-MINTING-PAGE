@@ -85,14 +85,6 @@ export function MintDetails({
             </Flex>
           </>
         )}
-        <Flex gap="x2" justify="space-between">
-          <Text variant="paragraph-sm" color="tertiary">
-            Public sale start
-          </Text>
-          <Text variant="paragraph-sm" align="right">
-            {startDate.toLocaleString(...dateOptions as [string, Intl.DateTimeFormatOptions])}
-          </Text>
-        </Flex>
       </Stack>
     </Stack>
   )
