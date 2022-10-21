@@ -20,6 +20,7 @@ import { PresaleStatus } from '@components/PresaleStatus'
 import { ipfsImage } from '@lib/helpers'
 import { header, maxWidth, border, heroImage } from 'styles/styles.css'
 import { useSaleStatus } from 'hooks/useSaleStatus'
+import { Spinner } from 'degen'
 
 interface HomePageProps {
   collection: SubgraphERC721Drop;
@@ -27,7 +28,7 @@ interface HomePageProps {
 }
 
 const HomePage: NextPage<HomePageProps> = ({ collection, chainId }) => {
-  const ogImage = ipfsImage("ipfs://bafybeifomuzbda6vaa2zas5il5r3k2wvtnkuuhg3d2wij6iv572pttmiqa/Wura cover art (1).png")
+  const ogImage = ipfsImage("ipfs://QmVJBGbMXHNyBe62ruPByK5MG6KdbZkSGPiBMfpqRQ6qP2")
   const { presaleExists, saleNotStarted, saleIsFinished } = useSaleStatus({ collection })
   const [showPresale, setShowPresale] = useState(saleNotStarted && !saleIsFinished)
 
@@ -84,11 +85,11 @@ const HomePage: NextPage<HomePageProps> = ({ collection, chainId }) => {
                 chainId={chainId}
               >
 <Well className={border} p="x6" style={{ borderBottom: 0 }}>
-              <img
+              {!ipfsImage(collection.editionMetadata.imageURI) ? <Spinner size="large" color="black" /> : <img
                 className={heroImage}
                 src={ipfsImage(collection.editionMetadata.imageURI)}
                 alt={collection.name}
-              />
+              />}
               {collection.editionMetadata?.mimeType?.includes?.("audio") && <audio controls>
                 <source src={ipfsImage(collection.editionMetadata.animationURI)} type={collection.editionMetadata.mimeType} />
               Your browser does not support the audio element.
