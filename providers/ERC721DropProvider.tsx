@@ -1,4 +1,4 @@
-import { allChains, useNetwork, useSigner } from 'wagmi'
+import { allChains, useAccount, useNetwork, useSigner } from 'wagmi'
 import React, {
   ReactNode,
   useCallback,
@@ -14,6 +14,7 @@ import { AllowListEntry } from 'lib/merkle-proof'
 import getDefaultProvider from 'lib/getDefaultProvider'
 import type { ContractTransaction } from 'ethers'
 import abi from '@lib/ERC721Drop-abi.json'
+import chillAbi from '@lib/ChillToken-abi.json'
 
 export interface ERC721DropProviderState {
   purchase: (quantity: number) => Promise<ContractTransaction | undefined>
@@ -54,6 +55,7 @@ function ERC721DropContractProvider({
   chainId?: number
 }) {
   const { data: signer } = useSigner()
+  const { data: account } = useAccount()
   const { activeChain } = useNetwork()
   const [userMintedCount, setUserMintedCount] = useState<number>()
   const [totalMinted, setTotalMinted] = useState<number>()
@@ -78,7 +80,6 @@ function ERC721DropContractProvider({
         return
       }
       const config = (await drop.saleDetails()) as unknown
-
       setSaleDetails(config as EditionSaleDetails)
     })()
   }, [drop, saleDetails, signer])
@@ -86,9 +87,23 @@ function ERC721DropContractProvider({
   const purchase = useCallback(
     async (quantity: number) => {
       if (!drop || !saleDetails) return
-      const tx = await drop.purchase(quantity, {
-        value: (saleDetails.publicSalePrice as BigNumber).mul(BigNumber.from(quantity)),
-      })
+      const chillToken = new ethers.Contract(saleDetails?.erc20PaymentToken, chillAbi, correctNetwork ? signer : provider)
+      const allowance = await chillToken.allowance(account.address, drop.address)
+      if (allowance.sub(BigNumber.from(saleDetails.publicSalePrice).mul(quantity)) < 0) {
+        const tx = await approve()
+        await tx.wait();
+      }
+      const tx = await drop.purchase(quantity)
+      return tx
+    },
+    [drop, saleDetails]
+  )
+
+  const approve = useCallback(
+    async () => {
+      if (!drop || !saleDetails) return
+      const chillToken = new ethers.Contract(saleDetails?.erc20PaymentToken, chillAbi, correctNetwork ? signer : provider)
+      const tx = await chillToken.approve(drop.address, ethers.constants.MaxUint256)
       return tx
     },
     [drop, saleDetails]

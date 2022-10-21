@@ -38,6 +38,7 @@ export interface EditionSaleDetails extends EditionSalesConfig {
   presaleActive: boolean
   totalMinted: BigNumber
   maxSupply: BigNumber
+  erc20PaymentToken: string
 }
 
 export interface EditionSalesConfigForm {
