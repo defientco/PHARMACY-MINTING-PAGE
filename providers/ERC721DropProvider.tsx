@@ -18,6 +18,8 @@ import chillAbi from '@lib/ChillToken-abi.json'
 
 export interface ERC721DropProviderState {
   purchase: (quantity: number) => Promise<ContractTransaction | undefined>
+  approve: (quantity: number) => Promise<ContractTransaction | undefined>
+  allowance: () => Promise<BigNumber | undefined>
   purchasePresale: (
     quantity: number,
     allowlistEntry?: AllowListEntry
@@ -84,15 +86,19 @@ function ERC721DropContractProvider({
     })()
   }, [drop, saleDetails, signer])
 
-  const purchase = useCallback(
-    async (quantity: number) => {
+  const allowance = useCallback(
+    async () => {
       if (!drop || !saleDetails) return
       const chillToken = new ethers.Contract(saleDetails?.erc20PaymentToken, chillAbi, correctNetwork ? signer : provider)
       const allowance = await chillToken.allowance(account.address, drop.address)
-      if (allowance.sub(BigNumber.from(saleDetails.publicSalePrice).mul(quantity)) < 0) {
-        const tx = await approve()
-        await tx.wait();
-      }
+      return allowance
+    },
+    [drop, saleDetails]
+  )
+
+  const purchase = useCallback(
+    async (quantity: number) => {
+      if (!drop || !saleDetails) return
       const tx = await drop.purchase(quantity)
       return tx
     },
@@ -269,6 +275,8 @@ function ERC721DropContractProvider({
   return (
     <ERC721DropContext.Provider
       value={{
+        allowance,
+        approve,
         purchase,
         purchasePresale,
         isAdmin,

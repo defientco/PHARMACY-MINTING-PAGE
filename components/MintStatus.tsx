@@ -22,7 +22,7 @@ import { useSaleStatus } from 'hooks/useSaleStatus'
 import { CountdownTimer } from 'components/CountdownTimer'
 import { cleanErrors } from 'lib/errors'
 import { AllowListEntry } from 'lib/merkle-proof'
-import type { ContractTransaction } from 'ethers'
+import { BigNumber, ContractTransaction } from 'ethers'
 
 function SaleStatus({
   collection,
@@ -61,6 +61,13 @@ function SaleStatus({
     setAwaitingApproval(true)
     setErrors(undefined)
     try {
+      const allow = await dropProvider.allowance();
+      console.log("ALLOWANCE", allow)
+      const price = collection.salesConfig.publicSalePrice;
+      console.log("PRICE", price)
+      if (allow.sub(BigNumber.from(price).mul(mintCounter)).lt(0)) {
+        await dropProvider.approve();
+      }
       const tx: ContractTransaction | undefined = presale
         ? await dropProvider.purchasePresale(mintCounter, allowlistEntry)
         : await dropProvider.purchase(mintCounter)
