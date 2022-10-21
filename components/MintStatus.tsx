@@ -86,7 +86,7 @@ function SaleStatus({
       }
      
 
-  const handleMint = useCallback(async () => {
+  const handleMint = async () => {
     setIsMinted(false)
     setAwaitingApproval(true)
     setErrors(undefined)
@@ -119,7 +119,7 @@ function SaleStatus({
       setAwaitingApproval(false)
       setIsMinting(false)
     }
-  }, [dropProvider, mintCounter, allowlistEntry])
+  }
 
   if (saleIsFinished || isSoldOut) {
     return (
