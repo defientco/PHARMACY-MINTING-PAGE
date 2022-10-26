@@ -78,7 +78,7 @@ const HomePage: NextPage<HomePageProps> = ({ collection, chainId }) => {
            
           <Text style={{whiteSpace: "pre-line"}}>{collection?.editionMetadata?.description}</Text>
           <Text >
-            <u><a href="https://ipfs.io/ipfs/bafkreiecfewq7fmvk6zuoe7djotqcu2m74w3yu5bv5b3qvt76ifulgtb5u?1" target="__blank">view full music metadata</a></u>
+            <u><a href="https://ipfs.io/ipfs/Qma5FUKyQQk1ELSydpFYSXb5sc5yR7NRmbTqm83A14Xcie?5" target="_blank" rel="noreferrer">view full music metadata</a></u>
           </Text>
           <Box mt="x8" mx="auto" style={{ maxWidth: 560 }}>
           <ERC721DropContractProvider
