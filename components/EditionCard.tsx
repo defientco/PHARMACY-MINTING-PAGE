@@ -278,11 +278,6 @@ const EditionCard = ({ editionAddress }) => {
                                             </div>
                                         </div>
                                         <div className=" justify-evenly flex flex-row flex-wrap w-full py-3 border-[1px] border-[#f70500]">
-                                            <div
-                                                className="flex flex-row  text-xl border-[#f70500] border-2 w-[30%] rounded  bg-[#f70500] justify-center text-center  text-black"
-                                            >
-                                                {"$" + editionSalesInfo.symbol}
-                                            </div>
                                             <div className="flex flex-row  items-center justify-center text-xl ">
                                                 {(totalSupply) + " / " + maxSupplyCheck(editionSalesInfo.maxSupply) + " MINTED"}
                                             </div>                                
@@ -311,7 +306,7 @@ const EditionCard = ({ editionAddress }) => {
                                             </button>    
                                             ) : (                                                  
                                             <button 
-                                                className="flex flex-row justify-center col-start-3 col-end-5  text-2xl p-3  w-full h-full border-[1px] border-solid border-[#f70500] hover:bg-[#0e0311] hover:text-black bg-[#f70500] text-black"
+                                                className="flex flex-row justify-center col-start-1 col-end-5  text-2xl p-3  w-full h-full border-[1px] border-solid border-[#f70500] hover:bg-[#0e0311] hover:text-black bg-[#f70500] text-black"
                                                 onClick={() => mintAndSetOverlayState()}   
                                             >
                                                 Mint
