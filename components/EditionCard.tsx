@@ -237,7 +237,7 @@ const EditionCard = ({ editionAddress }) => {
                                         className="decoration-1 text-sm pb-2 h-fit justify-center underline flex flex-row w-full text-[#0E0411]"
                                         target="_blank"
                                         rel="noreferrer"
-                                        href={`https://${!isMainnet && "testnets."}opensea.io/assets/${isMainnet ? "ethereum" : "goerli"}/${editionAddress}/${Number(totalSupply) + Number(mintQuantity.queryValue)}`} 
+                                        href={`https://${isMainnet ? "opensea.io" : "testnets.opensea.io"}/assets/${isMainnet ? "ethereum" : "goerli"}/${editionAddress}/${Number(totalSupply) + Number(mintQuantity.queryValue)}`} 
                                     >
                                         View on OpenSea
                                     </a>
