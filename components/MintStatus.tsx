@@ -155,6 +155,7 @@ function SaleStatus({
       if (allow.sub(BigNumber.from(price).mul(mintCounter)).lt(0)) {
         await approve();
       }
+
       const tx: ContractTransaction | undefined = presale
         ? await dropProvider.purchasePresale(mintCounter, allowlistEntry)
         : await dropProvider.purchase(mintCounter)

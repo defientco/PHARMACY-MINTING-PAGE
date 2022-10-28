@@ -26,9 +26,10 @@ import Image from 'next/image'
 interface HomePageProps {
   collection: SubgraphERC721Drop;
   chainId?: number;
+  metadataURI: string
 }
 
-const HomePage: NextPage<HomePageProps> = ({ collection, chainId }) => {
+const HomePage: NextPage<HomePageProps> = ({ collection, chainId, metadataURI }) => {
   const ogImage = ipfsImage("ipfs://QmVJBGbMXHNyBe62ruPByK5MG6KdbZkSGPiBMfpqRQ6qP2")
   const { presaleExists, saleNotStarted, saleIsFinished } = useSaleStatus({ collection })
   const [showPresale, setShowPresale] = useState(saleNotStarted && !saleIsFinished)
@@ -78,7 +79,7 @@ const HomePage: NextPage<HomePageProps> = ({ collection, chainId }) => {
            
           <Text style={{whiteSpace: "pre-line"}}>{collection?.editionMetadata?.description}</Text>
           <Text >
-            <u><a href="https://ipfs.io/ipfs/Qma5FUKyQQk1ELSydpFYSXb5sc5yR7NRmbTqm83A14Xcie?5" target="_blank" rel="noreferrer">view full music metadata</a></u>
+            <u><a href={metadataURI} target="_blank" rel="noreferrer">view full music metadata</a></u>
           </Text>
           <Box mt="x8" mx="auto" style={{ maxWidth: 560 }}>
           <ERC721DropContractProvider

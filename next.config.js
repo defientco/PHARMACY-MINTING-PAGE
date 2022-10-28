@@ -5,7 +5,7 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: { outputFileTracing: true },
   images: {
-    domains: ['chillrx.mypinata.cloud'],
+    domains: ['chillrx.mypinata.cloud', 'nftstorage.link'],
   },
   async headers() {
     return [
