@@ -1,0 +1,76 @@
+{
+    "version": "0.1",
+    "mimeType": "audio/wav",
+    "name": "Walk Away by Weed the Wizard & Yujin",
+    "title": "Walk Away by Weed the Wizard & Yujin",
+    "artist": "Weed the Wizard, Yujin, chillpill",
+    "attributes": {
+      "artist": "Weed the Wizard, Yujin, chillpill",
+      "genre": "Hip/Hop",
+      "bpm": 104,
+      "key": "B Major",
+      "project": "The Decentralized Album Vol 1",
+      "recordLabel": "ChillRx"
+    },
+    "description": "A community exclusive ChillFlip too good not to release. Written and recorded by Yujin and Weed the Wizard.",
+    "external_url": "https://opensea.io/collection/the-decentralized-living-album-on-the-blockchain",
+    "genre": "Hip/Hop",
+    "trackNumber": 8,
+    "duration": 171,
+    "bpm": 104,
+    "key": "B Major",
+    "locationCreated": "The Metaverse",
+    "artwork": {
+      "mimeType": "image/png",
+      "uri": "ipfs://bafybeif6reychaefwwyk243soovmlgy6md44xaasdbj5jlkcjeteixyyva"
+    },
+    "visualizer": {
+      "mimeType": "video/mp4",
+      "uri": "ipfs://bafybeidkfy4u6dc55krwmrsckz4xxq5ezipm4pmdopsiuajfo4a2wopxae"
+    },
+    "originalReleaseDate": "20220826T000000Z",
+    "recordLabel": "ChillRx",
+    "publisher": "ChillRx",
+    "project": {
+      "title": "The Decentralized Album Vol 1",
+      "artwork": {
+        "mimeType": "image/png",
+        "uri": "ipfs://QmNMo5XJ63TRhoV4YD6K2LuMJjyoJmHu3BC4Vz841YS34e"
+      },
+      "description": "This decentralized album is an ever-changing musicNFT living on the Ethereum blockchain. Refresh the metadata each month for new music and exclusive access to merch drops, shows, and more! Created by ChillRx (by @iamchillpill).",
+      "type": "Album",
+      "originalReleaseDate": "20220729T000000-0400",
+      "recordLabel": "ChillRx",
+      "publisher": "ChillRx"
+    },
+    "image": "ipfs://bafybeif6reychaefwwyk243soovmlgy6md44xaasdbj5jlkcjeteixyyva",
+    "animation_url": "ipfs://bafybeidkfy4u6dc55krwmrsckz4xxq5ezipm4pmdopsiuajfo4a2wopxae",
+    "losslessAudio": "ipfs://bafybeihbek3zxpa3uglyfdfwp56pv352a3zh6odzrj4b6xao5obhclt62q",
+    "credits": [
+        {
+          "name": "chillpill",
+          "collaboratorType": "Producer"
+        },
+        {
+          "name": "Yujin",
+          "collaboratorType": "Producer"
+        },
+        {
+          "name": "Yujin",
+          "collaboratorType": "Mix Engineer"
+        },
+        {
+          "name": "Yujin",
+          "collaboratorType": "Mastering Engineer"
+        },
+        {
+          "name": "Yujin",
+          "collaboratorType": "Vocalist"
+        },
+        {
+          "name": "WeedtheWizard",
+          "collaboratorType": "Songwriter"
+        }
+    ],
+    "tags": ["chillpill", "The Decentralized Album Vol 1", "chillrx"]
+  }
