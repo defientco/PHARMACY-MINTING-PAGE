@@ -5,7 +5,7 @@ import { createClient } from "urql"
 import { ethers } from 'ethers'
 import MintQuantityV2 from './MintQuantityV2'
 import { CustomAudioPlayer } from './CustomAudioPlayer'
-import abi from "../contractAbi/ChillDrop.json"
+import abi from "contractABI/ChillDrop.json"
 import getDefaultProvider from '@lib/getDefaultProvider'
 import { ipfsImage } from '@lib/helpers'
 import metadataRendererAbi from '@lib/MetadataRenderer-abi.json'
