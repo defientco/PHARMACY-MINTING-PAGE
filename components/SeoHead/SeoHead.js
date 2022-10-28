@@ -3,31 +3,23 @@ import Head from 'next/head'
 const SeoHead = () => {
   const title = 'ChillRx: the Pharmacy'
   const description = 'A Web3 Record Store by ChillRx'
-
+  const image =
+    'https://chillrx.mypinata.cloud/ipfs/QmYx7QtzLHFHPH3dXSijtNB1mTHfvwPKiqWnYFsvR1Mkz3'
   return (
     <Head>
       <title>Pharmacy</title>
       <meta name="description" content={description} />
-      <link rel="icon" href="/graphics/CHILL_RX.png" />
+      <link rel="icon" href={image} />
       <meta name="og:title" content={title} />
-      <meta property="og:image" content="/graphics/CHILL_RX.png" />
+      <meta property="og:image" content={image} />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:description" content={description} />
 
       <meta name="twitter:title" content={title} />
 
-      <meta
-        name="twitter:image"
-        content="https://chillrx.mypinata.cloud/ipfs/QmWzn4S8QW27r1ZL9RgpSXqmMmnqfom2einRQ9Ck2vFPBt"
-      />
-      <link
-        rel="icon"
-        href="https://chillrx.mypinata.cloud/ipfs/QmWzn4S8QW27r1ZL9RgpSXqmMmnqfom2einRQ9Ck2vFPBt"
-      />
-      <link
-        rel="apple-touch-icon"
-        href="https://chillrx.mypinata.cloud/ipfs/QmWzn4S8QW27r1ZL9RgpSXqmMmnqfom2einRQ9Ck2vFPBt"
-      />
+      <meta name="twitter:image" content={image} />
+      <link rel="icon" href={image} />
+      <link rel="apple-touch-icon" href={image} />
     </Head>
   )
 }

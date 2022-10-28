@@ -45,14 +45,12 @@ const Home: NextPage = () => {
       <SeoHead />
 
       <div className="py-10 border-t-[1px] border-solid border-[#f70500] mt-[100px] w-full flex flex-row justify-center ">
-        {/* <Image
-          src={"/collection_page_graphic_v2.png"}
-          height={227}
-          width={315}
-        /> */}
-        <div className="flex flex-row  text-xl border-[#f70500] border-2 w-[30%] rounded  bg-black justify-center text-center  text-[#f70500]">
-          The Pharmacy by ChillRx                                         
-        </div>
+        <Image
+          src={"/graphics/THE_PHARM.png"}
+          alt="pharmacy_logo"
+          height={350}
+          width={350}
+        />
       </div>
       <main className={` pb-8 sm:pb-[70px] text-white grid grid-rows-[${rowAndColumnCount}]  flex justify-center lg:grid-cols-3 sm:grid-cols-2  w-[90%] sm:w-[80%]  gap-y-8 sm:gap-y-[70px]  gap-x-0 sm:gap-x-[70px]`}> 
       {

@@ -10,12 +10,14 @@ import { ipfsImage } from '@lib/helpers'
 import metadataRendererAbi from '@lib/MetadataRenderer-abi.json'
 import chillAbi from '@lib/ChillToken-abi.json'
 import { toast } from 'react-toastify'
+import { useConnectModal } from '@rainbow-me/rainbowkit'
 
 const EditionCard = ({ editionAddress }) => {
     const {chain: activeChain} = useNetwork();
     const {address} = useAccount()
     const { data: signer } = useSigner()
     const {switchNetwork} = useSwitchNetwork()
+    const { openConnectModal } = useConnectModal();
     const [pendingTx, setPendingTx] = useState(false)
     const [mintQuantity, setMintQuantity] = useState({ name: '1', queryValue: 1 })
     const [loading, setLoading] = useState(false)
@@ -138,6 +140,10 @@ const EditionCard = ({ editionAddress }) => {
     // handle loading state UI when minting
     const mintAndSetOverlayState = async() => {
         const correctChainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID)
+        if (!address) {
+            openConnectModal()
+            return
+        }
         if (activeChain.id !== correctChainId) {
             const correctChain = allChains.find((c) => c.id === correctChainId)
             toast.error(`please connect to ${correctChain.name} and try again`)
@@ -237,7 +243,7 @@ const EditionCard = ({ editionAddress }) => {
                                         className="decoration-1 text-sm pb-2 h-fit justify-center underline flex flex-row w-full text-[#0E0411]"
                                         target="_blank"
                                         rel="noreferrer"
-                                        href={`https://${!isMainnet && "testnets."}opensea.io/assets/${isMainnet ? "ethereum" : "goerli"}/${editionAddress}/${Number(totalSupply) + Number(mintQuantity.queryValue)}`} 
+                                        href={`https://${isMainnet ? "opensea.io" : "testnets.opensea.io"}/assets/${isMainnet ? "ethereum" : "goerli"}/${editionAddress}/${Number(totalSupply) + Number(mintQuantity.queryValue)}`} 
                                     >
                                         View on OpenSea
                                     </a>
