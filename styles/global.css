@@ -1,31 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@font-face {
-  font-family: "akzidenz";
-  src: local(''), url('../public/fonts/akzidenz_sv_font/Akzidenz-grotesk-roman.ttf') format('woff');
-  font-weight: normal;
-  font-style: normal
+html {
+  scroll-behavior: smooth;
 }
-
-@import url('https://rsms.me/inter/inter.css');
-
-@supports (font-variation-settings: normal) {
-  body {
-    font-family: "Inter var", sans-serif
-  }
-}
-
 
 html,
 body {
-  background-color: #0E0411;
   padding: 0;
   margin: 0;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  scrollbar-color: red yellow;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
+    Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
 a {
@@ -34,65 +16,9 @@ a {
 }
 
 a:hover {
-  cursor: pointer
+  opacity: 0.7;
 }
 
 * {
   box-sizing: border-box;
 }
-
-.rhap_container {
-  background-color: #0E0411 !important;
-  outline: none !important;
-  box-shadow: none !important;
-  color: #f70500 !important;
-  width: 350px;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-}
-
-.rhap_main-controls-button svg {
-  color: #f70500;
-}
-
-.rhap_button-clear.rhap_volume-button {
-  color: #f70500 !important;
-}
-
-
-.rhap_volume-bar, .rhap_volume-indicator {
-  background-color: #f70500 !important;
-}
-
-.rhap_play-status--paused .rhap_progress-bar  {
-  background-color: transparent;
-  border: 1px solid #f70500;
-  border-radius: 0;
-  height: 7px;
-}
-
-.rhap_play-status--playing .rhap_progress-bar {
-  background-color: transparent;
-  border: 1px solid #f70500;
-  border-radius: 0;
-  height: 7px;
-}
-
-.rhap_current-time, .rhap_total-time {
-  color: #f70500 !important;
-}
-
-.rhap_progress-filled {
-  color: #f70500 !important;
-  background-color: #f70500 !important;
-}
-
-.rhap_progress-indicator {
-  background-color: #f70500 !important;
-
-}
-
-/* .rhap_download-progress {
-  background-color: transparent !important;
-} */

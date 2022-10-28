@@ -10,7 +10,7 @@ import { vars, Box, Text, Flex, Heading, Button, Stack, SpinnerOG } from '@zoral
 import { useDropMetadataContract } from 'providers/DropMetadataProvider'
 
 export function PresaleStatus({ collection }: { collection: SubgraphERC721Drop }) {
-  const { address: account } = useAccount()
+  const { data: account } = useAccount()
   const { disconnect } = useDisconnect()
   const { saleIsFinished } = useSaleStatus({ collection, presale: true })
   const { metadata } = useDropMetadataContract()
@@ -34,9 +34,9 @@ export function PresaleStatus({ collection }: { collection: SubgraphERC721Drop }
 
   useEffect(() => {
     async function asyncFunc() {
-      if (!merkleTree?.entries || !account) return
+      if (!merkleTree?.entries || !account?.address) return
       const entry = merkleTree.entries.find(
-        (e: any) => utils.getAddress(e.minter) === utils.getAddress(account || '')
+        (e: any) => utils.getAddress(e.minter) === utils.getAddress(account.address || '')
       )
       setAccessAllowed(!!entry && !!entry.proof.length)
       setAllowlistEntry(entry)
