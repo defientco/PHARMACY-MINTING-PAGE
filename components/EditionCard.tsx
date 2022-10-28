@@ -1,7 +1,6 @@
 import Image from 'next/image'
-import { useContractWrite, useWaitForTransaction } from "wagmi"
+import { allChains, useContractWrite, useNetwork, useSwitchNetwork, useWaitForTransaction } from "wagmi"
 import { useState, useEffect } from 'react'
-import { createClient } from "urql"
 import { ethers } from 'ethers'
 import MintQuantityV2 from './MintQuantityV2'
 import { CustomAudioPlayer } from './CustomAudioPlayer'
@@ -9,19 +8,11 @@ import abi from "contractABI/ChillDrop.json"
 import getDefaultProvider from '@lib/getDefaultProvider'
 import { ipfsImage } from '@lib/helpers'
 import metadataRendererAbi from '@lib/MetadataRenderer-abi.json'
-const vibes = "#ffffff"
-
-// API SETUP
-const ZORA_DROPS_MAINNET = "https://api.thegraph.com/subgraphs/name/iainnash/zora-editions-mainnet"
-const ZORA_DROPS_RINKEBY = "https://api.thegraph.com/subgraphs/name/iainnash/erc721droprinkeby"
-const ZORA_DROPS_GOERLI = "https://api.thegraph.com/subgraphs/name/iainnash/erc721drop-goerli"
-
-const client = createClient({
-    url: ZORA_DROPS_GOERLI
-})
+import { toast } from 'react-toastify'
 
 const EditionCard = ({ editionAddress }) => {
-
+    const {chain: activeChain} = useNetwork();
+    const {switchNetwork} = useSwitchNetwork()
     const [mintQuantity, setMintQuantity] = useState({ name: '1', queryValue: 1 })
     const [loading, setLoading] = useState(false)
     const [editionsImageSRC, setEditionsImageSRC] = useState("/placeholder_400_400.png");
@@ -38,58 +29,14 @@ const EditionCard = ({ editionAddress }) => {
     })
     const [mintOverlayState, setMintOverlayState] = useState(false);
 
-    const totalSupply = editionSalesInfo.totalMinted    
-
-    const editionQuery =  
-        `query {        
-            erc721Drops(
-                orderBy: createdAt
-                orderDirection: desc
-                where: {address: "${editionAddress}"}
-            ) {
-                name
-                owner
-                symbol
-                salesConfig {
-                    publicSalePrice
-                    publicSaleStart
-                    publicSaleEnd
-                }
-                address
-                maxSupply
-                totalMinted
-                editionMetadata {
-                    imageURI
-                    animationURI
-                    contractURI
-                    description
-                }
-                creator
-            }                 
-        }`    
-
-    const editionPromise = client.query(editionQuery).toPromise()
-
-    const runningPromise = async () => { 
-        return editionPromise.then((result) => {
-            return result
-        })
-    }
-
-    const cleanData = (input) => {
-        const cleanedData = input.data.erc721Drops[0]
-        return cleanedData
-    }
+    const totalSupply = editionSalesInfo.totalMinted     
 
     const fetchData = async () => {
-        console.log("fetching data")
         try {
             setLoading(true);
-            const queryResults = await runningPromise()
             const provider = getDefaultProvider("goerli", 5)
-            console.log("PROVIDER", provider)
             const contract = new ethers.Contract(editionAddress, abi, provider)
-            console.log("CONTRACT", contract)
+
             // Get metadata renderer
             const metadataRendererAddress = await contract.metadataRenderer();
             const metadataRendererContract = new ethers.Contract(metadataRendererAddress.toString(), metadataRendererAbi, provider);
@@ -97,22 +44,15 @@ const EditionCard = ({ editionAddress }) => {
             const metadataURI = ipfsImage(metadataBase.base)
             const axios = require('axios').default;
             const {data: metadata} = await axios.get(metadataURI) 
-            console.log("METADATA", metadata)
-            const cleanedQueryResults = cleanData(queryResults)
-
             const imageURI = metadata.image;
-            console.log("IMAGE URI", imageURI)
             const imageIPFSGateway = ipfsImage(imageURI)
             setEditionsImageSRC(imageIPFSGateway)
 
             const animationURI = metadata.losslessAudio
             const animnationIPFSGateway = ipfsImage(animationURI)
-            console.log("animnationIPFSGateway", animnationIPFSGateway)
             setEditionsAnimationSRC(animnationIPFSGateway)
 
             const salesConfig = await contract.salesConfig();
-            console.log("SALES CONFIG", salesConfig)
-            console.log("PRICE", ethers.utils.formatEther(salesConfig.publicSalePrice))
             const symbol = await contract.symbol()
             const config = await contract.config()
             const totalMinted = await contract.totalSupply();
@@ -134,8 +74,6 @@ const EditionCard = ({ editionAddress }) => {
             setLoading(false)
         } 
     }
-
-    // ZORA NFT DROPS Mint Call
 
     const editionSalePriceConverted = Number(editionSalesInfo.publicSalePrice)
     const editionTotalMintPrice = String(mintQuantity.queryValue * editionSalePriceConverted)
@@ -167,6 +105,13 @@ const EditionCard = ({ editionAddress }) => {
 
     // handle loading state UI when minting
     const mintAndSetOverlayState = () => {
+        const correctChainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID)
+        if (activeChain.id !== correctChainId) {
+            const correctChain = allChains.find((c) => c.id === correctChainId)
+            toast.error(`please connect to ${correctChain.name} and try again`)
+            switchNetwork(correctChainId)
+            return
+        }
         mintWrite()
         setMintOverlayState(!mintOverlayState)
     }
@@ -222,19 +167,22 @@ const EditionCard = ({ editionAddress }) => {
                                     <Image 
                                         src={editionsImageSRC}
                                         layout="fill"
-                                        objectFit='cover'        
+                                        objectFit='cover' 
+                                        alt="digital collectible"       
                                     />
                                 </div>        
                             </div>
                             { mintWaitLoading == false && mintOverlayState == true && mintStatus == "success" ? (
-                            <div className=" h-[268px] bg-[#f70500] flex flex-row sm:w-[100%] justify-center items-center  ">
+                            <div className=" h-[298px] bg-[#f70500] flex flex-row sm:w-[100%] justify-center items-center  ">
                                 <div className=" w-full  flex flex-row flex-wrap justify-center space-y-4">
                                     <div className="text-lg font-bold  flex flex-row w-full h-fit justify-center text-[#0E0411]">
-                                        Mint Successful ☼☽
+                                        💊 Mint Successful 💊
                                     </div>
                                     <a 
                                         className="decoration-1 text-sm pb-2 h-fit justify-center underline flex flex-row w-full text-[#0E0411]"
-                                        href={"https://etherscan.io/tx/" + mintWaitData.transactionHash} 
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        href={activeChain.id === 1 ? "https://etherscan.io/tx/" : "https://goerli.etherscan.io/tx/" + mintWaitData.transactionHash} 
                                     >
                                         View txn on Etherscan
                                     </a>
@@ -283,7 +231,7 @@ const EditionCard = ({ editionAddress }) => {
                                             </div>                                
                                         </div>                                                              
                                         <div className="w-full grid grid-cols-4 ">
-                                            <MintQuantityV2 mintQuantityCB={setMintQuantity} colorScheme={vibes}/>                              
+                                            <MintQuantityV2 mintQuantityCB={setMintQuantity} colorScheme="#ffffff"/>                              
                                             <div 
                                                 className="flex flex-row justify-center col-start-2 col-end-5  text-lg  p-3  w-full h-full border-[1px] border-solid border-[#f70500]"
                                             >
