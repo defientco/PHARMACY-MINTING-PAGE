@@ -1,11 +1,11 @@
 import type { NextPage } from 'next'
-import Head from 'next/head'
-import { Header } from '../components/Header'
-import { Footer } from '../components/Footer'
-import EditionCard from '../components/EditionCard';
+import { Header } from 'components/Header'
+import { Footer } from 'components/Footer'
+import EditionCard from 'components/EditionCard';
 import Image from 'next/image'
-
+import SeoHead from "components/SeoHead"
 const Home: NextPage = () => {
+  
   const chillDrops = [
     "0x48ba968a3b0925f834c704ca098ca895142c7aab", 
     "0x1dd9b6c2b23b79d93304935279bcf877f588ec22",
@@ -18,7 +18,6 @@ const Home: NextPage = () => {
     "0xB9cE4caf02Fd373e8E29947C819A924c1c127911",
     "0x5d71B68C248D5e87De8c4fe0ac5dcafE7A6E108b"
 ]
-  console.log("DATA", chillDrops)
   
   const rowAndColumnCount = chillDrops.length
 
@@ -26,30 +25,9 @@ const Home: NextPage = () => {
     
     <div className='flex flex-col justify-center items-center h-full min-h-screen scrollbar-thin scrollbar-thumb-black scrollbar-track-gray-600' >
       <Header />
-      <Head>
-        <title>Present Material</title>
-        <meta name="description" content="A Web3 Record Store" />
-        <link rel="icon" href="/graphics/1_1.png" />
-        <meta name="og:title" content="Songcamp: Present Material" />
-        <meta
-        property="og:image"
-        content="https://www.presentmaterial.xyz/graphics/mobile_preview.png"
-        />
-        <meta name="twitter:card" content="summary_large_image"
-        />
-        <meta name="twitter:description" content="A Web3 Record Store"
-        />
+      <SeoHead />
 
-        <meta name="twitter:title" content="Songcamp: Present Material"
-        />
-
-        <meta name="twitter:image" content="https://www.presentmaterial.xyz/graphics/16_9.png"
-        />           
-        <link rel="icon" href="https://www.presentmaterial.xyz/graphics/mobile_preview.png" />
-        <link rel="apple-touch-icon" href="https://www.presentmaterial.xyz/graphics/mobile_preview.png" />
-      </Head>
-
-      <div className="py-10 border-t-[1px] border-solid border-[#00c2ff] mt-[80px] w-full flex flex-row justify-center ">
+      <div className="py-10 border-t-[1px] border-solid border-[#f70500] mt-[100px] w-full flex flex-row justify-center ">
         <Image
           src={"/collection_page_graphic_v2.png"}
           height={227}

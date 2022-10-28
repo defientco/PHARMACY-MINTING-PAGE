@@ -45,7 +45,7 @@ a:hover {
   background-color: #0E0411 !important;
   outline: none !important;
   box-shadow: none !important;
-  color: #00C2FF !important;
+  color: #f70500 !important;
   width: 350px;
   display: flex;
   flex-direction: row;
@@ -53,43 +53,43 @@ a:hover {
 }
 
 .rhap_main-controls-button svg {
-  color: #00C2FF;
+  color: #f70500;
 }
 
 .rhap_button-clear.rhap_volume-button {
-  color: #00C2FF !important;
+  color: #f70500 !important;
 }
 
 
 .rhap_volume-bar, .rhap_volume-indicator {
-  background-color: #00C2FF !important;
+  background-color: #f70500 !important;
 }
 
 .rhap_play-status--paused .rhap_progress-bar  {
   background-color: transparent;
-  border: 1px solid #00C2FF;
+  border: 1px solid #f70500;
   border-radius: 0;
   height: 7px;
 }
 
 .rhap_play-status--playing .rhap_progress-bar {
   background-color: transparent;
-  border: 1px solid #00C2FF;
+  border: 1px solid #f70500;
   border-radius: 0;
   height: 7px;
 }
 
 .rhap_current-time, .rhap_total-time {
-  color: #00C2FF !important;
+  color: #f70500 !important;
 }
 
 .rhap_progress-filled {
-  color: #00C2FF !important;
-  background-color: #00C2FF !important;
+  color: #f70500 !important;
+  background-color: #f70500 !important;
 }
 
 .rhap_progress-indicator {
-  background-color: #00C2FF !important;
+  background-color: #f70500 !important;
 
 }
 
