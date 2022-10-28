@@ -16,6 +16,7 @@ const EditionCard = ({ editionAddress }) => {
     const {address} = useAccount()
     const { data: signer } = useSigner()
     const {switchNetwork} = useSwitchNetwork()
+    const [pendingTx, setPendingTx] = useState(false)
     const [mintQuantity, setMintQuantity] = useState({ name: '1', queryValue: 1 })
     const [loading, setLoading] = useState(false)
     const [editionsImageSRC, setEditionsImageSRC] = useState("/placeholder_400_400.png");
@@ -103,6 +104,7 @@ const EditionCard = ({ editionAddress }) => {
         ],
         onError(error, variables, context) {
             console.log("error", JSON.stringify(error.message))
+            setPendingTx(false)
         },
         onSuccess(cancelData, variables, context) {
             console.log("Success!", cancelData)
@@ -142,21 +144,28 @@ const EditionCard = ({ editionAddress }) => {
             switchNetwork(correctChainId)
             return
         }
-        const allow = await allowance()
-        const balance = await balanceOf();
-        const price = editionSalesInfo.publicSalePrice;
-
-        const priceDifference = BigNumber.from(price).sub(balance)
-        if (priceDifference.gt(0)) {
-            toast.error(`Not enough $CHILL. You need ${Math.round(Number(ethers.utils.formatEther(priceDifference)) * 100) / 100} more $CHILL`)
+        setPendingTx(true)
+        try {
+            const allow = await allowance()
+            const balance = await balanceOf();
+            const price = editionSalesInfo.publicSalePrice;
+    
+            const priceDifference = BigNumber.from(price).sub(balance)
+            if (priceDifference.gt(0)) {
+                toast.error(`Not enough $CHILL. You need ${Math.round(Number(ethers.utils.formatEther(priceDifference)) * 100) / 100} more $CHILL`)
+            }
+    
+            if (allow.sub(BigNumber.from(price).mul(mintQuantity.queryValue)).lt(0)) {
+                await approve();
+            }
+            console.log("allow", allow)
+            mintWrite()
+            setMintOverlayState(!mintOverlayState)
+        } catch(error) {
+            console.error(error)
+            setPendingTx(false)
         }
-
-        if (allow.sub(BigNumber.from(price).mul(mintQuantity.queryValue)).lt(0)) {
-            await approve();
-        }
-        console.log("allow", allow)
-        mintWrite()
-        setMintOverlayState(!mintOverlayState)
+        
     }
 
     const clearLoadingState = () => {
@@ -169,6 +178,7 @@ const EditionCard = ({ editionAddress }) => {
         onSuccess(mintWaitData) {
             console.log("txn complete: ", mintWaitData)
             console.log("txn hash: ", mintWaitData.transactionHash)
+            setPendingTx(false)
         }
     })           
 
@@ -193,6 +203,8 @@ const EditionCard = ({ editionAddress }) => {
          }
          return name;
     }
+
+    const isMainnet = activeChain?.id === 1;
 
     return (
         <>
@@ -225,9 +237,9 @@ const EditionCard = ({ editionAddress }) => {
                                         className="decoration-1 text-sm pb-2 h-fit justify-center underline flex flex-row w-full text-[#0E0411]"
                                         target="_blank"
                                         rel="noreferrer"
-                                        href={activeChain.id === 1 ? "https://etherscan.io/tx/" : "https://goerli.etherscan.io/tx/" + mintWaitData.transactionHash} 
+                                        href={`https://${!isMainnet && "testnets."}opensea.io/assets/${isMainnet ? "ethereum" : "goerli"}/${editionAddress}/${Number(totalSupply) + Number(mintQuantity.queryValue)}`} 
                                     >
-                                        View txn on Etherscan
+                                        View on OpenSea
                                     </a>
                                     <button
                                         onClick={() => clearLoadingState()}
@@ -281,11 +293,10 @@ const EditionCard = ({ editionAddress }) => {
                                                 {"" + totalMintValueEth + " $CHILL"}
                                             </div>             
 
-                                            { mintWaitLoading == true ? (
+                                            { mintWaitLoading || pendingTx ? (
                                             <button 
                                                 disabled={true}
                                                 className="flex flex-row justify-center col-start-1 col-end-5  text-2xl p-3  w-full h-full border-[1px] border-solid border-[#f70500] hover:bg-[#0e0311] hover:text-black bg-[#f70500] text-black"
-                                                // onClick={() => mintWrite()}   
                                             >
                                                 <div className='flex flex-row justify-center flex-wrap'>
                                                     <img
