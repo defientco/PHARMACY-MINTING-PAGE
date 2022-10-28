@@ -11,6 +11,7 @@ import { ThemeProvider } from 'degen'
 import ERC721DropContractProvider from 'providers/ERC721DropProvider'
 import { ToastContainer } from 'react-toastify';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
+import { AppWrapper } from 'context/useAppContext';
 
 const { chains, provider } = configureChains(
   [
@@ -19,7 +20,7 @@ const { chains, provider } = configureChains(
     )
   ],
   [ 
-    alchemyProvider({ alchemyId: "ezyXM9BT43gERc4t37pvrR29sDYX81Ph" }),
+    alchemyProvider({ apiKey: "ezyXM9BT43gERc4t37pvrR29sDYX81Ph" }),
     publicProvider()
   ]
 )
@@ -46,6 +47,7 @@ function App({ Component, pageProps }) {
             borderRadius: 'small',
           })}
         >
+          <AppWrapper>
           <ERC721DropContractProvider
                 erc721DropAddress={process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}
                 chainId={parseInt(process.env.NEXT_PUBLIC_CHAIN_ID)}
@@ -53,6 +55,8 @@ function App({ Component, pageProps }) {
               <Component {...pageProps} />
           </ERC721DropContractProvider>
           <ToastContainer />
+          </AppWrapper>
+          
         </RainbowKitProvider>
       </WagmiConfig>    
     </ThemeProvider>

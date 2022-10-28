@@ -13,7 +13,7 @@ import {
 import React, { useEffect, useCallback, useMemo, useState } from 'react'
 import { SubgraphERC721Drop } from 'models/subgraph'
 import { useERC721DropContract } from 'providers/ERC721DropProvider'
-import { useAccount, useNetwork, useSigner } from 'wagmi'
+import { useAccount, useNetwork, useSigner, useSwitchNetwork } from 'wagmi'
 import { formatCryptoVal } from 'lib/numbers'
 import { OPEN_EDITION_SIZE } from 'lib/constants'
 import { parseInt } from 'lodash'
@@ -46,8 +46,9 @@ function SaleStatus({
   availableMints: number
   allowlistEntry?: AllowListEntry
 }) {
-  const { data: account } = useAccount()
-  const { activeChain, switchNetwork } = useNetwork()
+  const { address: account } = useAccount()
+  const { chain: activeChain } = useNetwork()
+  const {switchNetwork} = useSwitchNetwork()
   const { data: signer } = useSigner()
 
   const dropProvider = useERC721DropContract()
