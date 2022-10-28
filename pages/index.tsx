@@ -4,7 +4,7 @@ import { ipfsImage } from '@lib/helpers'
 import abi from '@lib/ERC721Drop-abi.json'
 import metadataRendererAbi from '@lib/MetadataRenderer-abi.json'
 import getDefaultProvider from '@lib/getDefaultProvider'
-import getErc721Drop from '@lib/getErc721Drop'
+import getErc721Drop from '@lib/getERC721Drop'
 import { allChains } from 'wagmi'
 import HomePage from '@components/HomePage/HomePage'
 
