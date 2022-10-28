@@ -55,7 +55,7 @@ function ERC721DropContractProvider({
   chainId?: number
 }) {
   const { data: signer } = useSigner()
-  const { activeChain } = useNetwork()
+  const { chain: activeChain } = useNetwork()
   const [userMintedCount, setUserMintedCount] = useState<number>()
   const [totalMinted, setTotalMinted] = useState<number>()
   const [saleDetails, setSaleDetails] = useState<EditionSaleDetails>()

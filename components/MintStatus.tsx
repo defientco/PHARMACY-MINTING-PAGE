@@ -13,7 +13,7 @@ import {
 import React, { useEffect, useCallback, useMemo, useState } from 'react'
 import { SubgraphERC721Drop } from 'models/subgraph'
 import { useERC721DropContract } from 'providers/ERC721DropProvider'
-import { useAccount, useNetwork, useSigner } from 'wagmi'
+import { useAccount, useNetwork, useSigner, useSwitchNetwork } from 'wagmi'
 import { formatCryptoVal } from 'lib/numbers'
 import { OPEN_EDITION_SIZE } from 'lib/constants'
 import { parseInt } from 'lodash'
@@ -46,8 +46,9 @@ function SaleStatus({
   availableMints: number
   allowlistEntry?: AllowListEntry
 }) {
-  const { data: account } = useAccount()
-  const { activeChain, switchNetwork } = useNetwork()
+  const { address: account } = useAccount()
+  const { chain: activeChain } = useNetwork()
+  const {switchNetwork} = useSwitchNetwork()
   const { data: signer } = useSigner()
 
   const dropProvider = useERC721DropContract()
@@ -68,13 +69,13 @@ function SaleStatus({
 
   const allowance = async () => {
     const contract = getChillTokenContract();
-    const allowance = await contract.allowance(account.address, collection.address)
+    const allowance = await contract.allowance(account, collection.address)
     return allowance
   }
 
   const balanceOf = async () => {
     const contract = getChillTokenContract();
-    const balance = await contract.balanceOf(account.address)
+    const balance = await contract.balanceOf(account)
     return balance;
   }
 
@@ -93,7 +94,7 @@ function SaleStatus({
 
   const getStakedPills = async () => {
     const contract = await getStakingContract();
-    const stakedPills = await contract.tokensOfOwner(account.address);
+    const stakedPills = await contract.tokensOfOwner(account);
     const intArray = [];
     for (let i = 0; i < stakedPills.length; i++) {
       intArray.push(stakedPills[i].toNumber());
@@ -104,7 +105,7 @@ function SaleStatus({
   const getUnclaimedChill = async (contract, tokenIds) => {
     if (!contract) return;
     try {
-      const unclaimedTokens = await contract.earningInfo(account.address, tokenIds);
+      const unclaimedTokens = await contract.earningInfo(account, tokenIds);
       const formattedChill =
         Math.round(Number(ethers.utils.formatEther(unclaimedTokens.toString())) * 1000) /
         1000;

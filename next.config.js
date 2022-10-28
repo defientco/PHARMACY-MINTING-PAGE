@@ -4,6 +4,7 @@ const withVanillaExtract = createVanillaExtractPlugin()
 const nextConfig = {
   reactStrictMode: true,
   experimental: { outputFileTracing: true },
+  swcMinify: true,
   images: {
     domains: ['chillrx.mypinata.cloud', 'nftstorage.link'],
   },
