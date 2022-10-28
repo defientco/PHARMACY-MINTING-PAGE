@@ -1,4 +1,3 @@
-import Head from 'next/head'
 import { useState } from 'react'
 import {
   Box,
@@ -18,10 +17,10 @@ import { MintStatus } from '@components/MintStatus'
 import { MintDetails } from '@components/MintDetails'
 import { PresaleStatus } from '@components/PresaleStatus'
 import { ipfsImage } from '@lib/helpers'
-import { header, maxWidth, border, heroImage } from 'styles/styles.css'
+import { header, maxWidth, border } from 'styles/styles.css'
 import { useSaleStatus } from 'hooks/useSaleStatus'
-import { Spinner } from 'degen'
 import Image from 'next/image'
+import SeoHead from '@components/SeoHead'
 
 interface HomePageProps {
   collection: SubgraphERC721Drop;
@@ -30,43 +29,12 @@ interface HomePageProps {
 }
 
 const HomePage: NextPage<HomePageProps> = ({ collection, chainId, metadataURI }) => {
-  const ogImage = ipfsImage("ipfs://QmVJBGbMXHNyBe62ruPByK5MG6KdbZkSGPiBMfpqRQ6qP2")
   const { presaleExists, saleNotStarted, saleIsFinished } = useSaleStatus({ collection })
   const [showPresale, setShowPresale] = useState(saleNotStarted && !saleIsFinished)
 
   return (
     <>
-      <Head>
-        <title>{collection.name}</title>
-        <meta name="title" content={`${collection.name}`} />
-        <meta
-          name="description"
-          content={
-            collection.editionMetadata?.description ||
-            "Shiny by Kat Dahlia & chillpill. Written by Evan Bogart, GinoTheGhost, MNDR, and Sweetsound. Recorded at Record Plant during NFT LA 2022."
-          }
-        />
-        <meta name="og:title" content={`${collection.name}`} />
-        <meta
-          name="og:url"
-          content="https://pharmacy.chillrx.io"
-        />
-        <meta
-          name="og:description"
-          content={
-            collection.editionMetadata?.description ||
-            "Shiny by Kat Dahlia & chillpill. Written by Evan Bogart, GinoTheGhost, MNDR, and Sweetsound. Recorded at Record Plant during NFT LA 2022."
-          }
-        />
-        <meta name="og:image" content={ogImage} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${collection.name}`} />
-        <meta
-          name="twitter:url"
-          content="https://pharmacy.chillrx.io"
-        />
-        <meta name="twitter:image" content={ogImage} />
-      </Head>
+      <SeoHead />
 
       <Flex justify="flex-end" p="x4" className={header}>
         <ConnectWallet />
