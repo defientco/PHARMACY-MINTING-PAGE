@@ -16,9 +16,18 @@ const SeoHead = () => {
 
       <meta name="twitter:title" content={title} />
 
-      <meta name="twitter:image" content="/graphics/CHILL_RX.png" />
-      <link rel="icon" href="/graphics/CHILL_RX.png" />
-      <link rel="apple-touch-icon" href="/graphics/CHILL_RX.png" />
+      <meta
+        name="twitter:image"
+        content="https://chillrx.mypinata.cloud/ipfs/QmWzn4S8QW27r1ZL9RgpSXqmMmnqfom2einRQ9Ck2vFPBt"
+      />
+      <link
+        rel="icon"
+        href="https://chillrx.mypinata.cloud/ipfs/QmWzn4S8QW27r1ZL9RgpSXqmMmnqfom2einRQ9Ck2vFPBt"
+      />
+      <link
+        rel="apple-touch-icon"
+        href="https://chillrx.mypinata.cloud/ipfs/QmWzn4S8QW27r1ZL9RgpSXqmMmnqfom2einRQ9Ck2vFPBt"
+      />
     </Head>
   )
 }
