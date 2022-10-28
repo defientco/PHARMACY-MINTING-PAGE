@@ -39,7 +39,7 @@ const EditionCard = ({ editionAddress }) => {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const provider = getDefaultProvider("goerli", 5)
+            const provider = getDefaultProvider("goerli", process.env.NEXT_PUBLIC_CHAIN_ID)
             const contract = new ethers.Contract(editionAddress, abi, provider)
 
             // Get metadata renderer

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import useAppContext from "../context/useAppContext";
 import Image from "next/image";
+import { toast } from "react-toastify";
 
 export const Header = () => {
 
@@ -55,7 +56,10 @@ export const Header = () => {
             <Link
               href="/curate"
             >
-              <a className="hover:text-[#0e0311]">
+              <a className="hover:text-[#0e0311]" onClick={(e) => {
+                e.preventDefault()
+                toast.success("public curation with $CHILL coming soon")
+              }}>
                 Curate
               </a>
             </Link>        
