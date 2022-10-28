@@ -1,14 +1,11 @@
 import Image from 'next/image'
-import { useContractWrite, useContractRead, useWaitForTransaction } from "wagmi"
-import { BigNumber } from "ethers"
-import { useState, useEffect, useMemo } from 'react'
+import { useContractWrite, useWaitForTransaction } from "wagmi"
+import { useState, useEffect } from 'react'
 import { createClient } from "urql"
-import zoraDropsABI from "@zoralabs/nft-drop-contracts/dist/artifacts/ERC721Drop.sol/ERC721Drop.json"
 import { ethers } from 'ethers'
 import MintQuantityV2 from './MintQuantityV2'
 import { CustomAudioPlayer } from './CustomAudioPlayer'
-import { EditionArtist } from './EditionArtist'
-import abi from "contractAbi/ChillDrop.json"
+import abi from "../contractAbi/ChillDrop.json"
 import getDefaultProvider from '@lib/getDefaultProvider'
 import { ipfsImage } from '@lib/helpers'
 import metadataRendererAbi from '@lib/MetadataRenderer-abi.json'
