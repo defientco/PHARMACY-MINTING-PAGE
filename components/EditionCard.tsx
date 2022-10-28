@@ -1,17 +1,20 @@
 import Image from 'next/image'
-import { allChains, useContractWrite, useNetwork, useSwitchNetwork, useWaitForTransaction } from "wagmi"
+import { allChains, useAccount, useContractWrite, useNetwork, useSigner, useSwitchNetwork, useWaitForTransaction } from "wagmi"
 import { useState, useEffect } from 'react'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import MintQuantityV2 from './MintQuantityV2'
 import { CustomAudioPlayer } from './CustomAudioPlayer'
 import abi from "contractABI/ChillDrop.json"
 import getDefaultProvider from '@lib/getDefaultProvider'
 import { ipfsImage } from '@lib/helpers'
 import metadataRendererAbi from '@lib/MetadataRenderer-abi.json'
+import chillAbi from '@lib/ChillToken-abi.json'
 import { toast } from 'react-toastify'
 
 const EditionCard = ({ editionAddress }) => {
     const {chain: activeChain} = useNetwork();
+    const {address} = useAccount()
+    const { data: signer } = useSigner()
     const {switchNetwork} = useSwitchNetwork()
     const [mintQuantity, setMintQuantity] = useState({ name: '1', queryValue: 1 })
     const [loading, setLoading] = useState(false)
@@ -25,7 +28,8 @@ const EditionCard = ({ editionAddress }) => {
         "totalMinted": "",
         "publicSalePrice": "",
         "publicSaleStart": "",
-        "publicSaleEnd": ""
+        "publicSaleEnd": "",
+        "erc20PaymentToken": ""
     })
     const [mintOverlayState, setMintOverlayState] = useState(false);
 
@@ -56,6 +60,7 @@ const EditionCard = ({ editionAddress }) => {
             const symbol = await contract.symbol()
             const config = await contract.config()
             const totalMinted = await contract.totalSupply();
+            // console.log("salesConfig", salesConfig)
             const editionSalesInfo = {
                 "name": metadata.name,
                 "symbol": symbol,
@@ -65,6 +70,7 @@ const EditionCard = ({ editionAddress }) => {
                 "publicSalePrice": salesConfig.publicSalePrice,
                 "publicSaleStart": salesConfig.presaleStart,
                 "publicSaleEnd": salesConfig.publicSaleEnd,
+                "erc20PaymentToken": salesConfig.erc20PaymentToken
             }
             setEditionSalesInfo(editionSalesInfo);
 
@@ -103,8 +109,32 @@ const EditionCard = ({ editionAddress }) => {
         },
     })
 
+    const getChillTokenContract = () => {
+        return new ethers.Contract(editionSalesInfo.erc20PaymentToken, chillAbi, signer)
+    }
+
+    const allowance = async () => {
+        const contract = getChillTokenContract();
+        const allowance = await contract.allowance(address, editionAddress)
+        console.log("ALLOWANCE", allowance)
+        return allowance
+    }
+
+    const balanceOf = async () => {
+        const contract = getChillTokenContract();
+        const balance = await contract.balanceOf(address)
+        return balance;
+    }
+
+    const approve =  async () => {
+        const tx = await getChillTokenContract().approve(editionAddress, ethers.constants.MaxUint256)
+        await tx.wait()
+        toast.success("Approved $CHILL! You can now buy a music NFT.")
+        return tx
+    }
+
     // handle loading state UI when minting
-    const mintAndSetOverlayState = () => {
+    const mintAndSetOverlayState = async() => {
         const correctChainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID)
         if (activeChain.id !== correctChainId) {
             const correctChain = allChains.find((c) => c.id === correctChainId)
@@ -112,6 +142,19 @@ const EditionCard = ({ editionAddress }) => {
             switchNetwork(correctChainId)
             return
         }
+        const allow = await allowance()
+        const balance = await balanceOf();
+        const price = editionSalesInfo.publicSalePrice;
+
+        const priceDifference = BigNumber.from(price).sub(balance)
+        if (priceDifference.gt(0)) {
+            toast.error(`Not enough $CHILL. You need ${Math.round(Number(ethers.utils.formatEther(priceDifference)) * 100) / 100} more $CHILL`)
+        }
+
+        if (allow.sub(BigNumber.from(price).mul(mintQuantity.queryValue)).lt(0)) {
+            await approve();
+        }
+        console.log("allow", allow)
         mintWrite()
         setMintOverlayState(!mintOverlayState)
     }
