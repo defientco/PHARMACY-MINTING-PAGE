@@ -43,9 +43,10 @@ function App({ Component, pageProps }) {
         <RainbowKitProvider
           chains={chains}
           theme={lightTheme({
-            accentColor: 'black',
+            accentColor: '#fe0200',
             borderRadius: 'small',
           })}
+          modalSize="compact"
         >
           <AppWrapper>
             <Component {...pageProps} />
