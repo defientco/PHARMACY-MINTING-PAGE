@@ -6,7 +6,7 @@ import metadataRendererAbi from '@lib/MetadataRenderer-abi.json'
 import getDefaultProvider from '@lib/getDefaultProvider'
 import { allChains } from 'wagmi'
 import HomePage from '@components/HomePage/HomePage'
-import getErc721Drop from '@lib/'
+import getErc721Drop from '@lib/getErc721Drop'
 
 const MintPage = ({collection, chainId, metadataURI}) => <HomePage collection={collection} chainId={chainId} metadataURI={metadataURI} />
 export default MintPage;
