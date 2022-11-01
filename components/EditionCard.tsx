@@ -288,7 +288,7 @@ const EditionCard = ({ editionAddress }) => {
                                         </div>
                                         <div className=" justify-evenly flex flex-row flex-wrap w-full py-3 border-[1px] border-[#f70500]">
                                             <div className="flex flex-row  items-center justify-center text-xl ">
-                                                {(totalSupply) + " / " + maxSupplyCheck(editionSalesInfo.maxSupply) + " MINTED"}
+                                                {(totalSupply) + " / " + maxSupplyCheck(editionSalesInfo.maxSupply) + " COLLECTED"}
                                             </div>                                
                                         </div>                                                              
                                         <div className="w-full grid grid-cols-4 ">
@@ -317,7 +317,7 @@ const EditionCard = ({ editionAddress }) => {
                                                 className="flex flex-row justify-center col-start-1 col-end-5  text-2xl p-3  w-full h-full border-[1px] border-solid border-[#f70500] hover:bg-[#0e0311] hover:text-black bg-[#f70500] text-black"
                                                 onClick={() => mintAndSetOverlayState()}   
                                             >
-                                                Mint
+                                                Collect
                                             </button>                                                                   
                                             )}              
                                         </div>  
