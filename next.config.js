@@ -6,7 +6,7 @@ const nextConfig = {
   experimental: { outputFileTracing: true },
   swcMinify: true,
   images: {
-    domains: ['chillrx.mypinata.cloud', 'nftstorage.link'],
+    domains: ['chillrx.mypinata.cloud', 'nftstorage.link', 'ipfs.io'],
   },
   async headers() {
     return [
