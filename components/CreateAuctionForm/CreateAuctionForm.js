@@ -1,5 +1,6 @@
-import { Button, Input as DegenInput } from 'degen'
+import { Input as DegenInput } from 'degen'
 import { useState } from 'react'
+import CreateAuctionButton from '../CreateAuctionButton/CreateAuctionButton'
 
 const CreateAuctionForm = () => {
   const [contractAddress, setContractAddress] = useState()
@@ -24,8 +25,7 @@ const CreateAuctionForm = () => {
           setTokenId(e.target.value)
         }}
       />
-
-      <Button>Create Auction</Button>
+      <CreateAuctionButton contractAddress={contractAddress} tokenId={tokenId} />
     </div>
   )
 }
