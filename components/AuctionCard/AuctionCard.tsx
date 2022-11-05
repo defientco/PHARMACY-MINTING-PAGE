@@ -38,32 +38,35 @@ const AuctionCard = ({ editionAddress }) => {
 
     const totalSupply = editionSalesInfo.totalMinted     
 
+    const getMetadata = async (contract, provider) => {
+        const metadataRendererAddress = await contract.metadataRenderer();
+        const metadataRendererContract = new ethers.Contract(metadataRendererAddress.toString(), metadataRendererAbi, provider);
+        const metadataBase = await metadataRendererContract.metadataBaseByContract(editionAddress);
+        const metadataURI = ipfsImage(metadataBase.base)
+        const axios = require('axios').default;
+        const {data: metadata} = await axios.get(metadataURI) 
+        return metadata
+    }
+
     const fetchData = async () => {
         try {
             setLoading(true);
             const provider = getDefaultProvider("goerli", process.env.NEXT_PUBLIC_CHAIN_ID)
             const contract = new ethers.Contract(editionAddress, abi, provider)
 
-            // Get metadata renderer
-            const metadataRendererAddress = await contract.metadataRenderer();
-            const metadataRendererContract = new ethers.Contract(metadataRendererAddress.toString(), metadataRendererAbi, provider);
-            const metadataBase = await metadataRendererContract.metadataBaseByContract(editionAddress);
-            const metadataURI = ipfsImage(metadataBase.base)
-            const axios = require('axios').default;
-            const {data: metadata} = await axios.get(metadataURI) 
+            const metadata = await getMetadata(contract, provider);
             const imageURI = metadata.image;
             const imageIPFSGateway = ipfsImage(imageURI)
             setEditionsImageSRC(imageIPFSGateway)
 
-            const animationURI = metadata.losslessAudio
-            const animnationIPFSGateway = ipfsImage(animationURI)
+            const animationURI = metadata?.losslessAudio
+            const animnationIPFSGateway = animationURI ? ipfsImage(animationURI) : ""
             setEditionsAnimationSRC(animnationIPFSGateway)
 
             const salesConfig = await contract.salesConfig();
             const symbol = await contract.symbol()
             const config = await contract.config()
             const totalMinted = await contract.totalSupply();
-            // console.log("salesConfig", salesConfig)
             const editionSalesInfo = {
                 "name": metadata.name,
                 "symbol": symbol,
@@ -105,7 +108,7 @@ const AuctionCard = ({ editionAddress }) => {
             mintQuantity.queryValue
         ],
         onError(error, variables, context) {
-            console.log("error", JSON.stringify(error.message))
+            console.error("error", JSON.stringify(error.message))
             setPendingTx(false)
         },
         onSuccess(cancelData, variables, context) {
@@ -113,14 +116,12 @@ const AuctionCard = ({ editionAddress }) => {
         },
     })
 
-    const getChillTokenContract = () => {
-        return new ethers.Contract(editionSalesInfo.erc20PaymentToken, chillAbi, signer)
-    }
+    const getChillTokenContract = () => new ethers.Contract(editionSalesInfo.erc20PaymentToken, chillAbi, signer)
+    
 
     const allowance = async () => {
         const contract = getChillTokenContract();
         const allowance = await contract.allowance(address, editionAddress)
-        console.log("ALLOWANCE", allowance)
         return allowance
     }
 
@@ -155,16 +156,13 @@ const AuctionCard = ({ editionAddress }) => {
             const allow = await allowance()
             const balance = await balanceOf();
             const price = editionSalesInfo.publicSalePrice;
-    
             const priceDifference = BigNumber.from(price).sub(balance)
             if (priceDifference.gt(0)) {
                 toast.error(`Not enough $CHILL. You need ${Math.round(Number(ethers.utils.formatEther(priceDifference)) * 100) / 100} more $CHILL`)
             }
-    
             if (allow.sub(BigNumber.from(price).mul(mintQuantity.queryValue)).lt(0)) {
                 await approve();
             }
-            console.log("allow", allow)
             mintWrite()
             setMintOverlayState(!mintOverlayState)
         } catch(error) {
@@ -273,7 +271,6 @@ const AuctionCard = ({ editionAddress }) => {
                                     </div>                                                          
                                     ) : (
                                     <div className="w-full ">
-                                        <CustomAudioPlayer  musicSRC={editionsAnimationSRC} />
                                         <div className=" flex flex-row flex-wrap w-full pb-4 space-y-2 ">
                                             <div className="ml-3 mt-3 flex flex-row w-full text-xl">
                                                 <a
