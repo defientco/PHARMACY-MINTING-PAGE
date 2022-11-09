@@ -3,8 +3,8 @@ import { allChains, useAccount, useNetwork, useSigner, useSwitchNetwork } from '
 import getChillAllowance from '@lib/getChillAllowance'
 import getChillBalance from '@lib/getChillBalance'
 import { toast } from 'react-toastify'
-import { BigNumber } from 'ethers'
-import { getAuctionContract } from '@lib/getContracts'
+import { BigNumber, ethers } from 'ethers'
+import { getAuctionContract, getChillTokenContract } from '@lib/getContracts'
 
 const CreateBidButton = ({ setPendingTx, nftAddress }) => {
   const { openConnectModal } = useConnectModal()
@@ -12,6 +12,16 @@ const CreateBidButton = ({ setPendingTx, nftAddress }) => {
   const { chain: activeChain } = useNetwork()
   const { address } = useAccount()
   const { data: signer } = useSigner()
+
+  const approve = async () => {
+    const tx = await getChillTokenContract().approve(
+      nftAddress,
+      ethers.constants.MaxUint256
+    )
+    await tx.wait()
+    toast.success('Approved $CHILL! You can now buy a music NFT.')
+    return tx
+  }
 
   const bidAndSetOverlayState = async () => {
     const correctChainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID)
