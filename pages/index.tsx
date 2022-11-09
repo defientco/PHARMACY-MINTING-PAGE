@@ -9,6 +9,7 @@ const Home: NextPage = () => {
   const isMainnet = Number(process.env.NEXT_PUBLIC_CHAIN_ID) === 1
 
   const goerliDrops = [
+    "0x5053A2537733EB1108219b5Db0FCb2E472369D79",
     "0x48ba968a3b0925f834c704ca098ca895142c7aab", 
     "0x1dd9b6c2b23b79d93304935279bcf877f588ec22",
     "0xb291bBFb4E5CF696fee4F7BCB489266327a4C5D8",
