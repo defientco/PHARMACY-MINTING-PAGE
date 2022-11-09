@@ -6,11 +6,14 @@ import zoraModuleManagerAbi from '@lib/ZoraModuleManager-abi.json'
 import auctionAbi from '@lib/ReserveAuctionERC20FindersEth-abi.json'
 import { useAccount, useSigner } from 'wagmi'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
+import { useState } from 'react'
+import { Spinner } from '@zoralabs/zord'
 
 const CreateAuctionButton = ({ contractAddress, tokenId }) => {
   const { data: signer } = useSigner()
   const { address } = useAccount()
   const { openConnectModal } = useConnectModal()
+  const [isPendingTx, setIsPendingTx] = useState(false)
 
   const isEthereum = Number(process.env.NEXT_PUBLIC_CHAIN_ID) === 1
   const erc721TransferHelper = isEthereum
@@ -82,6 +85,8 @@ const CreateAuctionButton = ({ contractAddress, tokenId }) => {
       )
       await tx.wait()
       toast.success('auction created')
+      const auction = await contract.auctionForNFT(contractAddress, tokenId)
+      console.log('AUCTION', auction)
     } catch (err) {
       console.error(err)
       toast.error('error creating auction')
@@ -110,6 +115,7 @@ const CreateAuctionButton = ({ contractAddress, tokenId }) => {
       toast.error('missing tokenId')
     }
 
+    setIsPendingTx(true)
     console.log('contractAddress', contractAddress)
     console.log('tokenId', tokenId)
     const contract = getNftContract()
@@ -117,16 +123,29 @@ const CreateAuctionButton = ({ contractAddress, tokenId }) => {
     const isApproved = await isApprovedForAll(contract)
     if (!isApproved) {
       await approveForAll(contract)
+      setIsPendingTx(false)
       return
     }
 
     const isModuleApproved = await isAuctionModuleApproved()
     console.log('isModuleApproved', isModuleApproved)
-    if (!isModuleApproved) return
+    if (!isModuleApproved) {
+      setIsPendingTx(false)
+      return
+    }
     await createAuction()
+    setIsPendingTx(false)
   }
 
-  return <Button onClick={handleClick}>Create Auction</Button>
+  return (
+    <>
+      {isPendingTx ? (
+        <Spinner size="lg" />
+      ) : (
+        <Button onClick={handleClick}>Create Auction</Button>
+      )}
+    </>
+  )
 }
 
 export default CreateAuctionButton

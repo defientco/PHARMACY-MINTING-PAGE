@@ -1,28 +1,24 @@
 import Image from 'next/image'
-import { allChains, useAccount, useContractWrite, useNetwork, useSigner, useSwitchNetwork, useWaitForTransaction } from "wagmi"
+import { useContractWrite, useNetwork, useSigner, useWaitForTransaction } from "wagmi"
 import { useState, useEffect } from 'react'
 import { BigNumber, ethers } from 'ethers'
 import MintQuantityV2 from 'components/MintQuantityV2'
-import { CustomAudioPlayer } from 'components/CustomAudioPlayer'
+import CreateBidButton from "components/CreateBidButton"
+import AuctionSettleButton from "components/AuctionSettleButton"
 import abi from "contractABI/ChillDrop.json"
 import getDefaultProvider from '@lib/getDefaultProvider'
 import { ipfsImage } from '@lib/helpers'
 import metadataRendererAbi from '@lib/MetadataRenderer-abi.json'
-import chillAbi from '@lib/ChillToken-abi.json'
-import { toast } from 'react-toastify'
-import { useConnectModal } from '@rainbow-me/rainbowkit'
+import { getAuctionContract } from '@lib/getContracts'
+import { CountdownTimer } from '@components/CountdownTimer'
 
-const AuctionCard = ({ editionAddress }) => {
+const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
     const {chain: activeChain} = useNetwork();
-    const {address} = useAccount()
-    const { data: signer } = useSigner()
-    const {switchNetwork} = useSwitchNetwork()
-    const { openConnectModal } = useConnectModal();
+    const {data: signer} = useSigner()
     const [pendingTx, setPendingTx] = useState(false)
     const [mintQuantity, setMintQuantity] = useState({ name: '1', queryValue: 1 })
     const [loading, setLoading] = useState(false)
     const [editionsImageSRC, setEditionsImageSRC] = useState("/placeholder_400_400.png");
-    const [editionsAnimationSRC, setEditionsAnimationSRC] = useState("");
     const [editionSalesInfo, setEditionSalesInfo] = useState({
         "name": "",
         "symbol": "",
@@ -35,6 +31,9 @@ const AuctionCard = ({ editionAddress }) => {
         "erc20PaymentToken": ""
     })
     const [mintOverlayState, setMintOverlayState] = useState(false);
+    const [isActive, setIsActive] = useState(true)
+    const [endTime, setEndTime] = useState(0)
+    const [started, setStarted] = useState(false)
 
     const totalSupply = editionSalesInfo.totalMinted     
 
@@ -48,6 +47,30 @@ const AuctionCard = ({ editionAddress }) => {
         return metadata
     }
 
+    const isAuctionSettled = async(provider) => {
+        console.log("IS AUCTION SETTLED?")
+        const contract = getAuctionContract(signer || provider);
+        console.log("contract", contract)
+        console.log("getting auction for...")
+        console.log("editionAddress", editionAddress)
+        console.log("tokenId", tokenId)
+        const auctionForNft = await contract.auctionForNFT(editionAddress, tokenId)
+        console.log("auctionForNft", auctionForNft)
+        console.log("startTime", auctionForNft.firstBidTime.toString())
+        const hasntStarted = auctionForNft.firstBidTime.toString() == "0"
+        console.log("duration", auctionForNft.duration.toString())
+        const now = Math.round(new Date().getTime() / 1000)
+        console.log("currentTime", now)
+        const endDate = auctionForNft.firstBidTime.add(auctionForNft.duration)
+        console.log("endTime", endDate.toString())
+        const active = BigNumber.from(now).lt(endDate)
+        console.log("sale is active?", active)
+
+        setIsActive(active)
+        setStarted(!hasntStarted)
+        setEndTime(endDate.toNumber() * 1000)
+    }
+
     const fetchData = async () => {
         try {
             setLoading(true);
@@ -58,10 +81,6 @@ const AuctionCard = ({ editionAddress }) => {
             const imageURI = metadata.image;
             const imageIPFSGateway = ipfsImage(imageURI)
             setEditionsImageSRC(imageIPFSGateway)
-
-            const animationURI = metadata?.losslessAudio
-            const animnationIPFSGateway = animationURI ? ipfsImage(animationURI) : ""
-            setEditionsAnimationSRC(animnationIPFSGateway)
 
             const salesConfig = await contract.salesConfig();
             const symbol = await contract.symbol()
@@ -80,6 +99,7 @@ const AuctionCard = ({ editionAddress }) => {
             }
             setEditionSalesInfo(editionSalesInfo);
 
+            const isSettled = await isAuctionSettled(provider);
         } catch(error){
             console.error(error.message);
         } finally {
@@ -105,7 +125,7 @@ const AuctionCard = ({ editionAddress }) => {
         contractInterface: abi,
         functionName: 'purchase',
         args: [
-            mintQuantity.queryValue
+            editionAddress
         ],
         onError(error, variables, context) {
             console.error("error", JSON.stringify(error.message))
@@ -115,62 +135,6 @@ const AuctionCard = ({ editionAddress }) => {
             console.log("Success!", cancelData)
         },
     })
-
-    const getChillTokenContract = () => new ethers.Contract(editionSalesInfo.erc20PaymentToken, chillAbi, signer)
-    
-
-    const allowance = async () => {
-        const contract = getChillTokenContract();
-        const allowance = await contract.allowance(address, editionAddress)
-        return allowance
-    }
-
-    const balanceOf = async () => {
-        const contract = getChillTokenContract();
-        const balance = await contract.balanceOf(address)
-        return balance;
-    }
-
-    const approve =  async () => {
-        const tx = await getChillTokenContract().approve(editionAddress, ethers.constants.MaxUint256)
-        await tx.wait()
-        toast.success("Approved $CHILL! You can now buy a music NFT.")
-        return tx
-    }
-
-    // handle loading state UI when minting
-    const mintAndSetOverlayState = async() => {
-        const correctChainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID)
-        if (!address) {
-            openConnectModal()
-            return
-        }
-        if (activeChain.id !== correctChainId) {
-            const correctChain = allChains.find((c) => c.id === correctChainId)
-            toast.error(`please connect to ${correctChain.name} and try again`)
-            switchNetwork(correctChainId)
-            return
-        }
-        setPendingTx(true)
-        try {
-            const allow = await allowance()
-            const balance = await balanceOf();
-            const price = editionSalesInfo.publicSalePrice;
-            const priceDifference = BigNumber.from(price).sub(balance)
-            if (priceDifference.gt(0)) {
-                toast.error(`Not enough $CHILL. You need ${Math.round(Number(ethers.utils.formatEther(priceDifference)) * 100) / 100} more $CHILL`)
-            }
-            if (allow.sub(BigNumber.from(price).mul(mintQuantity.queryValue)).lt(0)) {
-                await approve();
-            }
-            mintWrite()
-            setMintOverlayState(!mintOverlayState)
-        } catch(error) {
-            console.error(error)
-            setPendingTx(false)
-        }
-        
-    }
 
     const clearLoadingState = () => {
         setMintOverlayState(!mintOverlayState);
@@ -184,7 +148,7 @@ const AuctionCard = ({ editionAddress }) => {
             console.log("txn hash: ", mintWaitData.transactionHash)
             setPendingTx(false)
         }
-    })           
+    })  
 
     // max supply check
     const maxSupplyCheck = (supply) => {
@@ -198,7 +162,7 @@ const AuctionCard = ({ editionAddress }) => {
     useEffect(() => {
         fetchData();
         }, 
-        []
+        [signer]
     )
 
     const truncateName = (name) => {
@@ -209,7 +173,7 @@ const AuctionCard = ({ editionAddress }) => {
     }
 
     const isMainnet = activeChain?.id === 1;
-
+    const inactiveText = started ? "Auction has Ended" : "Place First Bid to Start Auction"
     return (
         <>
             {
@@ -285,7 +249,7 @@ const AuctionCard = ({ editionAddress }) => {
                                         </div>
                                         <div className=" justify-evenly flex flex-row flex-wrap w-full py-3 border-[1px] border-[#f70500]">
                                             <div className="flex flex-row  items-center justify-center text-xl ">
-                                                {(totalSupply) + " / " + maxSupplyCheck(editionSalesInfo.maxSupply) + " MINTED"}
+                                                {isActive ? <CountdownTimer targetTime={endTime} refresh={false} appendText=" left"/>: inactiveText}
                                             </div>                                
                                         </div>                                                              
                                         <div className="w-full grid grid-cols-4 ">
@@ -309,13 +273,13 @@ const AuctionCard = ({ editionAddress }) => {
                                                     />
                                                 </div>
                                             </button>    
-                                            ) : (                                                  
-                                            <button 
-                                                className="flex flex-row justify-center col-start-1 col-end-5  text-2xl p-3  w-full h-full border-[1px] border-solid border-[#f70500] hover:bg-[#0e0311] hover:text-black bg-[#f70500] text-black"
-                                                onClick={() => mintAndSetOverlayState()}   
-                                            >
-                                                Mint
-                                            </button>                                                                   
+                                            ) : ( 
+                                                <>
+                                                    {isActive || !started
+                                                    ? <CreateBidButton setPendingTx={setPendingTx} nftAddress={editionAddress} /> 
+                                                    : <AuctionSettleButton setPendingTx={setPendingTx} nftAddress={editionAddress} tokenId={tokenId} />
+                                                    }
+                                                </>                                                  
                                             )}              
                                         </div>  
                                     </div>                                   
