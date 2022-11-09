@@ -9,8 +9,9 @@ import abi from "contractABI/ChillDrop.json"
 import getDefaultProvider from '@lib/getDefaultProvider'
 import { ipfsImage } from '@lib/helpers'
 import metadataRendererAbi from '@lib/MetadataRenderer-abi.json'
-import { getAuctionContract } from '@lib/getContracts'
+import { getAuctionContract, getChillTokenContract } from '@lib/getContracts'
 import { CountdownTimer } from '@components/CountdownTimer'
+import { toast } from 'react-toastify'
 
 const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
     const {chain: activeChain} = useNetwork();
@@ -170,6 +171,13 @@ const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
             return name.substring(0, 29) + '...';
          }
          return name;
+    }
+
+    const approve =  async () => {
+        const tx = await getChillTokenContract().approve(editionAddress, ethers.constants.MaxUint256)
+        await tx.wait()
+        toast.success("Approved $CHILL! You can now buy a music NFT.")
+        return tx
     }
 
     const isMainnet = activeChain?.id === 1;
