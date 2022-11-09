@@ -22,6 +22,7 @@ const Home: NextPage = () => {
   ]
 
   const mainnetDrops = [
+    "0x48f2d790c3da620b908d954ee98fa1d50c7eb6bd",
     "0x44274C83C01a6A5E2a4C22b2ADF6ce388cEa75ba",
     "0x0E6f1C77151e6Cd9B32eBf1e305234F9640Bf6b4",
     "0x00b96983dae0c1EBaB092f93ea7D73E9CB279C8D",
