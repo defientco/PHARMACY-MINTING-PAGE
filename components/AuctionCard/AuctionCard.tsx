@@ -204,6 +204,7 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
 
     const isMainnet = activeChain?.id === 1;
     const inactiveText = started ? "Auction has Ended" : "Place First Bid to Start Auction"
+    const canBid = isActive && started
     return (
         <>
             {
@@ -283,9 +284,9 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
                                             </div>                                
                                         </div>                                                              
                                         <div className="w-full grid grid-cols-4 ">
-                                            <Bid initialBid={ethers.utils.formatEther(minimumBid)} onChange={handleBidChange} colorScheme="#ffffff"/>                              
+                                            {canBid && <Bid initialBid={ethers.utils.formatEther(minimumBid)} onChange={handleBidChange} colorScheme="#ffffff"/>}                              
                                             <div 
-                                                className="flex flex-row justify-center col-start-3 col-end-5  text-lg  p-3  w-full h-full border-[1px] border-solid border-[#f70500]"
+                                                className={`flex flex-row justify-center items-center col-start-${canBid ? 3 : 1} col-end-5  text-lg  p-3  w-full h-full border-[1px] border-solid border-[#f70500]`}
                                             >
                                                 {"" + totalMintValueEth + " $CHILL"}
                                             </div>             
