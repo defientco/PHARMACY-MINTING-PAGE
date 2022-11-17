@@ -1,7 +1,7 @@
 {
     "version": "0.1",
     "mimeType": "audio/wav",
-    "name": "\"Guaranteez\" by Stockz & chillpill",
+    "name": "The Decentralized Album",
     "title": "\"Guaranteez\" by Stockz & chillpill",
     "artist": "Stockz, chillpill",
     "attributes": {
@@ -12,7 +12,7 @@
       "project": "The Decentralized Album Vol. 2",
       "recordLabel": "DEFI Records"
     },
-    "description": "Now there's a couple things that I can guarantee...\n\n\"Guaranteez\" by Stockz & chillpill\n\nAn NFT NYC exclusive collaboration",
+    "description": "This decentralized album is an ever-changing musicNFT living on the ethereum blockchain. Refresh the metadata each month for new music and exclusive access to merch drops, shows, and more! created by ChillRx (by @iamchillpill)",
     "external_url": "https://opensea.io/collection/the-decentralized-living-album-on-the-blockchain",
     "genre": "Hip/Hop",
     "trackNumber": 1,
@@ -28,16 +28,16 @@
     "recordLabel": "ChillRx",
     "publisher": "ChillRx",
     "project": {
-      "title": "\"Guaranteez\" by Stockz & chillpill",
-      "artwork": {
-        "mimeType": "image/jpg",
-        "uri": "ipfs://QmYq1Ji7Ejgome7LHX5Y4zPyLEFcmpHEg19Tr1Jt1Zp2Hj"
-      },
-      "description": "Now there's a couple things that I can guarantee...\n\n\"Guaranteez\" by Stockz & chillpill\n\nAn NFT NYC exclusive collaboration",
-      "type": "Single",
-      "originalReleaseDate": "20221109T000000Z",
-      "recordLabel": "ChillRx",
-      "publisher": "ChillRx"
+        "title": "The Decentralized Album Vol 1",
+        "artwork": {
+          "mimeType": "image/png",
+          "uri": "ipfs://QmNMo5XJ63TRhoV4YD6K2LuMJjyoJmHu3BC4Vz841YS34e"
+        },
+        "description": "This decentralized album is an ever-changing musicNFT living on the Ethereum blockchain. Refresh the metadata each month for new music and exclusive access to merch drops, shows, and more! Created by ChillRx (by @iamchillpill).",
+        "type": "Album",
+        "originalReleaseDate": "20220729T000000-0400",
+        "recordLabel": "ChillRx",
+        "publisher": "ChillRx"
     },
     "image": "ipfs://QmYq1Ji7Ejgome7LHX5Y4zPyLEFcmpHEg19Tr1Jt1Zp2Hj",
     "animation_url": "ipfs://QmWNaSdhXq2WdusiBcVC2Ju5A1JJySRDVNrQMEBGcaazvC",
