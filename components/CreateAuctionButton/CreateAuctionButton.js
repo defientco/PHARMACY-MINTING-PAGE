@@ -68,7 +68,7 @@ const CreateAuctionButton = ({ contractAddress, tokenId }) => {
     try {
       const contract = getAuctionContract()
       const duration = 180
-      const reservePrice = 1
+      const reservePrice = '8080000000000000000'
       const sellerFundsRecipient = address
       const startTime = 0
       const bidCurrency = chillToken

@@ -13,6 +13,8 @@ import { getAuctionContract, getChillTokenContract } from '@lib/getContracts'
 import { CountdownTimer } from '@components/CountdownTimer'
 import { toast } from 'react-toastify'
 
+const chillReservePrice = "8080000000000000000"
+
 const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
     const {chain: activeChain} = useNetwork();
     const {data: signer} = useSigner()
@@ -72,7 +74,7 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
         console.log("highest bid", highestBid)
         console.log("isReserveMet", isReserveMet)
         console.log("reservePrice", reservePrice)
-        setHighestBid(isReserveMet ? highestBid.toString() : reservePrice.toString())
+        setHighestBid(isReserveMet ? highestBid.toString() : chillReservePrice)
         setIsActive(active)
         setStarted(!hasntStarted)
         setEndTime(endDate.toNumber() * 1000)
@@ -291,7 +293,7 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
                                             ) : ( 
                                                 <>
                                                     {isActive || !started
-                                                    ? <CreateBidButton tokenId={tokenId} setPendingTx={setPendingTx} nftAddress={editionAddress} /> 
+                                                    ? <CreateBidButton tokenId={tokenId} setPendingTx={setPendingTx} nftAddress={editionAddress} bid={String(chillReservePrice) === String(highestBid) ? chillReservePrice : BigNumber.from(highestBid).mul(10).div(100).toString() } /> 
                                                     : <AuctionSettleButton setPendingTx={setPendingTx} nftAddress={editionAddress} tokenId={tokenId} />
                                                     }
                                                 </>                                                  
