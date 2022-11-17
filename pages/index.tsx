@@ -9,8 +9,6 @@ const Home: NextPage = () => {
   
   const isMainnet = Number(process.env.NEXT_PUBLIC_CHAIN_ID) === 1
 
-  const blueChipAuctionAddress = "0x712ba73c72f65B4eD00352C58e28e80093f29dE3"
-
   const goerliDrops = [
     "0x5053A2537733EB1108219b5Db0FCb2E472369D79",
     "0x48ba968a3b0925f834c704ca098ca895142c7aab", 
@@ -58,7 +56,7 @@ const Home: NextPage = () => {
         />
       </div>
       <main className={` pb-8 sm:pb-[70px] text-white grid grid-rows-[${rowAndColumnCount}]  flex justify-center lg:grid-cols-3 sm:grid-cols-2  w-[90%] sm:w-[80%]  gap-y-8 sm:gap-y-[70px]  gap-x-0 sm:gap-x-[70px]`}> 
-      <AuctionCard editionAddress={blueChipAuctionAddress} />
+     {process.env.NEXT_PUBLIC_BLUE_CHIP_AUCTION && <AuctionCard editionAddress={process.env.NEXT_PUBLIC_BLUE_CHIP_AUCTION} />}
       {
         chillDrops.map((collection, index) =>
           <EditionCard editionAddress={chillDrops[index]} key={collection} />
