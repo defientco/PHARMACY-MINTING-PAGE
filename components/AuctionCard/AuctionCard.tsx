@@ -60,28 +60,14 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
     }
 
     const isAuctionSettled = async(provider) => {
-        console.log("IS AUCTION SETTLED?")
         const contract = getAuctionContract(signer || provider);
-        console.log("contract", contract)
-        console.log("getting auction for...")
-        console.log("editionAddress", editionAddress)
-        console.log("tokenId", tokenId)
         const auctionForNft = await contract.auctionForNFT(editionAddress, tokenId)
-        console.log("auctionForNft", auctionForNft)
-        console.log("startTime", auctionForNft.firstBidTime.toString())
         const hasntStarted = auctionForNft.firstBidTime.toString() == "0"
-        console.log("duration", auctionForNft.duration.toString())
         const now = Math.round(new Date().getTime() / 1000)
-        console.log("currentTime", now)
         const endDate = auctionForNft.firstBidTime.add(auctionForNft.duration)
-        console.log("endTime", endDate.toString())
         const active = BigNumber.from(now).lt(endDate)
-        console.log("sale is active?", active)
         const {highestBid, reservePrice} = auctionForNft;
         const isReserveMet = highestBid.gt(0);
-        console.log("highest bid", highestBid)
-        console.log("isReserveMet", isReserveMet)
-        console.log("reservePrice", reservePrice)
         setHighestBid(isReserveMet ? highestBid.toString() : chillReservePrice)
         setIsActive(active)
         setStarted(!hasntStarted)
@@ -90,17 +76,11 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
         const mod = "10000000000000000"
         let tenPercentBump = raw.sub(raw.mod(mod)).add(mod).toString()
         const decimalIndex = tenPercentBump.indexOf(".");
-        console.log(" DECIMALINDEX", decimalIndex)
         
         if (decimalIndex > -1) {
-            console.log("TRUE DECIMALINDEX", decimalIndex)
-
             tenPercentBump = tenPercentBump.substring(0, decimalIndex + 1)
         }
-        console.log("tenpercentBump", tenPercentBump)
         setMinimumBid(isReserveMet ? tenPercentBump : chillReservePrice)
-        // TODO: query highestBid from ReserveAuction Contract
-
     }
 
     const fetchData = async () => {
@@ -139,7 +119,6 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
         } 
     }
 
-    console.log("highestBid", highestBid)
     const totalMintValueEth = ethers.utils.formatEther(highestBid)
 
     const { 
@@ -197,7 +176,6 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
     const handleBidChange = (event) => {
         const newValue = event.target.value
         const bidChange = newValue && ethers.utils.parseEther(newValue)
-        console.log("BID CHANGED", bidChange)
         const defaultBid = String(chillReservePrice) === String(highestBid) ? chillReservePrice : BigNumber.from(highestBid).mul(10).div(100).toString()
         setBid(bidChange.toString() || defaultBid)
     }
