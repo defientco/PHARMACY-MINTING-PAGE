@@ -40,6 +40,7 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
     const [started, setStarted] = useState(false)
     const [highestBid, setHighestBid] = useState(0)
     const [bid, setBid] = useState("")
+    const [minimumBid, setMinimumBid] = useState(0)
     const totalSupply = editionSalesInfo.totalMinted     
 
     const getMetadata = async (contract, provider) => {
@@ -50,6 +51,12 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
         const axios = require('axios').default;
         const {data: metadata} = await axios.get(metadataURI) 
         return metadata
+    }
+
+    const updateAuctionData = async() => {
+        const provider = getDefaultProvider("goerli", process.env.NEXT_PUBLIC_CHAIN_ID)
+
+        await isAuctionSettled(provider)
     }
 
     const isAuctionSettled = async(provider) => {
@@ -79,6 +86,19 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
         setIsActive(active)
         setStarted(!hasntStarted)
         setEndTime(endDate.toNumber() * 1000)
+        const raw = highestBid.mul(10).div(100).add(highestBid);
+        const mod = "10000000000000000"
+        let tenPercentBump = raw.sub(raw.mod(mod)).add(mod).toString()
+        const decimalIndex = tenPercentBump.indexOf(".");
+        console.log(" DECIMALINDEX", decimalIndex)
+        
+        if (decimalIndex > -1) {
+            console.log("TRUE DECIMALINDEX", decimalIndex)
+
+            tenPercentBump = tenPercentBump.substring(0, decimalIndex + 1)
+        }
+        console.log("tenpercentBump", tenPercentBump)
+        setMinimumBid(isReserveMet ? tenPercentBump : chillReservePrice)
         // TODO: query highestBid from ReserveAuction Contract
 
     }
@@ -179,7 +199,7 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
         const bidChange = newValue && ethers.utils.parseEther(newValue)
         console.log("BID CHANGED", bidChange)
         const defaultBid = String(chillReservePrice) === String(highestBid) ? chillReservePrice : BigNumber.from(highestBid).mul(10).div(100).toString()
-        setBid(bidChange || defaultBid)
+        setBid(bidChange.toString() || defaultBid)
     }
 
     const isMainnet = activeChain?.id === 1;
@@ -263,7 +283,7 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
                                             </div>                                
                                         </div>                                                              
                                         <div className="w-full grid grid-cols-4 ">
-                                            <Bid initialBid={bid} onChange={handleBidChange} colorScheme="#ffffff"/>                              
+                                            <Bid initialBid={ethers.utils.formatEther(minimumBid)} onChange={handleBidChange} colorScheme="#ffffff"/>                              
                                             <div 
                                                 className="flex flex-row justify-center col-start-3 col-end-5  text-lg  p-3  w-full h-full border-[1px] border-solid border-[#f70500]"
                                             >
@@ -286,7 +306,7 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
                                             ) : ( 
                                                 <>
                                                     {isActive || !started
-                                                    ? <CreateBidButton tokenId={tokenId} setPendingTx={setPendingTx} nftAddress={editionAddress} bid={bid} /> 
+                                                    ? <CreateBidButton tokenId={tokenId} setPendingTx={setPendingTx} nftAddress={editionAddress} bid={bid || minimumBid} onSuccess={updateAuctionData}/> 
                                                     : <AuctionSettleButton setPendingTx={setPendingTx} nftAddress={editionAddress} tokenId={tokenId} />
                                                     }
                                                 </>                                                  

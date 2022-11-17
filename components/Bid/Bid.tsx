@@ -12,9 +12,9 @@ const sortOptions = [
 
 export default function Bid({ colorScheme, initialBid, onChange }) {
     return (
-        <div className={`text-[#f70500]  z-9 flex border-red-500 col-start-1 col-end-3  w-full flex-row justify-self-end  focus-visible:ring-offset-[${colorScheme}`}>
+        <div className={`text-[#f70500]  z-9 flex border border-red-500 col-start-1 col-end-3  w-full flex-row justify-self-end  focus-visible:ring-offset-[${colorScheme}`}>
             <div className="w-full">
-            <label className="text-xl m-2" htmlFor="password" >
+            <label className="text-xl m-2" htmlFor="bid" >
                 Your Bid
             </label>
              <input 
@@ -23,7 +23,7 @@ export default function Bid({ colorScheme, initialBid, onChange }) {
                 id="bid" 
                 step={0.01}
                 type="number" 
-                placeholder="min bid" 
+                placeholder={initialBid}
             />
 
             </div>

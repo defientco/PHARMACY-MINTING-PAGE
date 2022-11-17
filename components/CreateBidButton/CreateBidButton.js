@@ -7,7 +7,7 @@ import { BigNumber, ethers } from 'ethers'
 import { getAuctionContract, getChillTokenContract } from '@lib/getContracts'
 import handleTxError from '@lib/handleTxError'
 
-const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid }) => {
+const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid, onSuccess }) => {
   const { openConnectModal } = useConnectModal()
   const { switchNetwork } = useSwitchNetwork()
   const { chain: activeChain } = useNetwork()
@@ -63,6 +63,7 @@ const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid }) => {
       )
       await tx.wait()
       toast.success('bid placed')
+      onSuccess()
       setPendingTx(false)
     } catch (error) {
       handleTxError(error)
