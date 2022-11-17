@@ -13,7 +13,7 @@ import { getAuctionContract, getChillTokenContract } from '@lib/getContracts'
 import { CountdownTimer } from '@components/CountdownTimer'
 import { toast } from 'react-toastify'
 
-const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
+const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
     const {chain: activeChain} = useNetwork();
     const {data: signer} = useSigner()
     const [pendingTx, setPendingTx] = useState(false)
@@ -35,6 +35,7 @@ const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
     const [isActive, setIsActive] = useState(true)
     const [endTime, setEndTime] = useState(0)
     const [started, setStarted] = useState(false)
+    const [highestBid, setHighestBid] = useState(0)
 
     const totalSupply = editionSalesInfo.totalMinted     
 
@@ -66,10 +67,17 @@ const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
         console.log("endTime", endDate.toString())
         const active = BigNumber.from(now).lt(endDate)
         console.log("sale is active?", active)
-
+        const {highestBid, reservePrice} = auctionForNft;
+        const isReserveMet = highestBid.gt(0);
+        console.log("highest bid", highestBid)
+        console.log("isReserveMet", isReserveMet)
+        console.log("reservePrice", reservePrice)
+        setHighestBid(isReserveMet ? highestBid.toString() : reservePrice.toString())
         setIsActive(active)
         setStarted(!hasntStarted)
         setEndTime(endDate.toNumber() * 1000)
+        // TODO: query highestBid from ReserveAuction Contract
+
     }
 
     const fetchData = async () => {
@@ -108,9 +116,8 @@ const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
         } 
     }
 
-    const editionSalePriceConverted = Number(editionSalesInfo.publicSalePrice)
-    const editionTotalMintPrice = String(mintQuantity.queryValue * editionSalePriceConverted)
-    const totalMintValueEth = ethers.utils.formatUnits(editionTotalMintPrice)
+    console.log("highestBid", highestBid)
+    const totalMintValueEth = ethers.utils.formatEther(highestBid)
 
     const { 
         data: mintData, 
@@ -284,7 +291,7 @@ const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
                                             ) : ( 
                                                 <>
                                                     {isActive || !started
-                                                    ? <CreateBidButton setPendingTx={setPendingTx} nftAddress={editionAddress} /> 
+                                                    ? <CreateBidButton tokenId={tokenId} setPendingTx={setPendingTx} nftAddress={editionAddress} /> 
                                                     : <AuctionSettleButton setPendingTx={setPendingTx} nftAddress={editionAddress} tokenId={tokenId} />
                                                     }
                                                 </>                                                  

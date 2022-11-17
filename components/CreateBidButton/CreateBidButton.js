@@ -6,7 +6,7 @@ import { toast } from 'react-toastify'
 import { BigNumber, ethers } from 'ethers'
 import { getAuctionContract, getChillTokenContract } from '@lib/getContracts'
 
-const CreateBidButton = ({ setPendingTx, nftAddress }) => {
+const CreateBidButton = ({ setPendingTx, nftAddress, tokenId }) => {
   const { openConnectModal } = useConnectModal()
   const { switchNetwork } = useSwitchNetwork()
   const { chain: activeChain } = useNetwork()
@@ -54,14 +54,12 @@ const CreateBidButton = ({ setPendingTx, nftAddress }) => {
         await approve()
       }
       const auctionContract = getAuctionContract(signer)
-      const tokenId = 2
       const findersFeeRecipient = '0x97a5810acDDF54371e3bBA01C41eFbA8ada268d6'
       const tx = await auctionContract.createBid(
         nftAddress,
         tokenId,
         1000,
-        findersFeeRecipient,
-        { value: 1000000000000 }
+        findersFeeRecipient
       )
       await tx.wait()
       toast.success('bid placed')
