@@ -12,6 +12,7 @@ import metadataRendererAbi from '@lib/MetadataRenderer-abi.json'
 import { getAuctionContract, getChillTokenContract } from '@lib/getContracts'
 import { CountdownTimer } from '@components/CountdownTimer'
 import { toast } from 'react-toastify'
+import Bid from '@components/Bid'
 
 const chillReservePrice = "8080000000000000000"
 
@@ -38,7 +39,7 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
     const [endTime, setEndTime] = useState(0)
     const [started, setStarted] = useState(false)
     const [highestBid, setHighestBid] = useState(0)
-
+    const [bid, setBid] = useState("")
     const totalSupply = editionSalesInfo.totalMinted     
 
     const getMetadata = async (contract, provider) => {
@@ -158,16 +159,7 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
             console.log("txn hash: ", mintWaitData.transactionHash)
             setPendingTx(false)
         }
-    })  
-
-    // max supply check
-    const maxSupplyCheck = (supply) => {
-        if (supply == 18446744073709551615) {
-            return "∞"
-        } else {
-            return supply
-        }
-    }
+    }) 
 
     useEffect(() => {
         fetchData();
@@ -182,11 +174,12 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
          return name;
     }
 
-    const approve =  async () => {
-        const tx = await getChillTokenContract().approve(editionAddress, ethers.constants.MaxUint256)
-        await tx.wait()
-        toast.success("Approved $CHILL! You can now buy a music NFT.")
-        return tx
+    const handleBidChange = (event) => {
+        const newValue = event.target.value
+        const bidChange = newValue && ethers.utils.parseEther(newValue)
+        console.log("BID CHANGED", bidChange)
+        const defaultBid = String(chillReservePrice) === String(highestBid) ? chillReservePrice : BigNumber.from(highestBid).mul(10).div(100).toString()
+        setBid(bidChange || defaultBid)
     }
 
     const isMainnet = activeChain?.id === 1;
@@ -270,9 +263,9 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
                                             </div>                                
                                         </div>                                                              
                                         <div className="w-full grid grid-cols-4 ">
-                                            <MintQuantityV2 mintQuantityCB={setMintQuantity} colorScheme="#ffffff"/>                              
+                                            <Bid initialBid={bid} onChange={handleBidChange} colorScheme="#ffffff"/>                              
                                             <div 
-                                                className="flex flex-row justify-center col-start-2 col-end-5  text-lg  p-3  w-full h-full border-[1px] border-solid border-[#f70500]"
+                                                className="flex flex-row justify-center col-start-3 col-end-5  text-lg  p-3  w-full h-full border-[1px] border-solid border-[#f70500]"
                                             >
                                                 {"" + totalMintValueEth + " $CHILL"}
                                             </div>             
@@ -293,7 +286,7 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
                                             ) : ( 
                                                 <>
                                                     {isActive || !started
-                                                    ? <CreateBidButton tokenId={tokenId} setPendingTx={setPendingTx} nftAddress={editionAddress} bid={String(chillReservePrice) === String(highestBid) ? chillReservePrice : BigNumber.from(highestBid).mul(10).div(100).toString() } /> 
+                                                    ? <CreateBidButton tokenId={tokenId} setPendingTx={setPendingTx} nftAddress={editionAddress} bid={bid} /> 
                                                     : <AuctionSettleButton setPendingTx={setPendingTx} nftAddress={editionAddress} tokenId={tokenId} />
                                                     }
                                                 </>                                                  
