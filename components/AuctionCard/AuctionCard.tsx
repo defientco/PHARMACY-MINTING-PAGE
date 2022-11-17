@@ -264,7 +264,7 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
                                         <div className="w-full grid grid-cols-4 ">
                                             {canBid && <Bid initialBid={ethers.utils.formatEther(minimumBid)} onChange={handleBidChange} colorScheme="#ffffff"/>}                              
                                             <div 
-                                                className={`flex flex-row justify-center items-center col-start-${canBid ? 3 : 1} col-end-5  text-lg  p-3  w-full h-full border-[1px] border-solid border-[#f70500]`}
+                                                className={`flex flex-row justify-center items-center ${canBid ? "col-start-3" : "col-start-1"} col-end-5  text-lg  p-3  w-full h-full border-[1px] border-solid border-[#f70500]`}
                                             >
                                                 {"" + totalMintValueEth + " $CHILL"}
                                             </div>             
