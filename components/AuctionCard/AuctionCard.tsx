@@ -12,8 +12,11 @@ import metadataRendererAbi from '@lib/MetadataRenderer-abi.json'
 import { getAuctionContract, getChillTokenContract } from '@lib/getContracts'
 import { CountdownTimer } from '@components/CountdownTimer'
 import { toast } from 'react-toastify'
+import Bid from '@components/Bid'
 
-const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
+const chillReservePrice = "8080000000000000000"
+
+const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
     const {chain: activeChain} = useNetwork();
     const {data: signer} = useSigner()
     const [pendingTx, setPendingTx] = useState(false)
@@ -35,7 +38,9 @@ const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
     const [isActive, setIsActive] = useState(true)
     const [endTime, setEndTime] = useState(0)
     const [started, setStarted] = useState(false)
-
+    const [highestBid, setHighestBid] = useState(0)
+    const [bid, setBid] = useState("")
+    const [minimumBid, setMinimumBid] = useState(0)
     const totalSupply = editionSalesInfo.totalMinted     
 
     const getMetadata = async (contract, provider) => {
@@ -48,28 +53,34 @@ const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
         return metadata
     }
 
-    const isAuctionSettled = async(provider) => {
-        console.log("IS AUCTION SETTLED?")
-        const contract = getAuctionContract(signer || provider);
-        console.log("contract", contract)
-        console.log("getting auction for...")
-        console.log("editionAddress", editionAddress)
-        console.log("tokenId", tokenId)
-        const auctionForNft = await contract.auctionForNFT(editionAddress, tokenId)
-        console.log("auctionForNft", auctionForNft)
-        console.log("startTime", auctionForNft.firstBidTime.toString())
-        const hasntStarted = auctionForNft.firstBidTime.toString() == "0"
-        console.log("duration", auctionForNft.duration.toString())
-        const now = Math.round(new Date().getTime() / 1000)
-        console.log("currentTime", now)
-        const endDate = auctionForNft.firstBidTime.add(auctionForNft.duration)
-        console.log("endTime", endDate.toString())
-        const active = BigNumber.from(now).lt(endDate)
-        console.log("sale is active?", active)
+    const updateAuctionData = async() => {
+        const provider = getDefaultProvider("goerli", process.env.NEXT_PUBLIC_CHAIN_ID)
 
+        await isAuctionSettled(provider)
+    }
+
+    const isAuctionSettled = async(provider) => {
+        const contract = getAuctionContract(signer || provider);
+        const auctionForNft = await contract.auctionForNFT(editionAddress, tokenId)
+        const hasntStarted = auctionForNft.firstBidTime.toString() == "0"
+        const now = Math.round(new Date().getTime() / 1000)
+        const endDate = auctionForNft.firstBidTime.add(auctionForNft.duration)
+        const active = BigNumber.from(now).lt(endDate)
+        const {highestBid, reservePrice} = auctionForNft;
+        const isReserveMet = highestBid.gt(0);
+        setHighestBid(isReserveMet ? highestBid.toString() : chillReservePrice)
         setIsActive(active)
         setStarted(!hasntStarted)
         setEndTime(endDate.toNumber() * 1000)
+        const raw = highestBid.mul(10).div(100).add(highestBid);
+        const mod = "10000000000000000"
+        let tenPercentBump = raw.sub(raw.mod(mod)).add(mod).toString()
+        const decimalIndex = tenPercentBump.indexOf(".");
+        
+        if (decimalIndex > -1) {
+            tenPercentBump = tenPercentBump.substring(0, decimalIndex + 1)
+        }
+        setMinimumBid(isReserveMet ? tenPercentBump : chillReservePrice)
     }
 
     const fetchData = async () => {
@@ -108,9 +119,7 @@ const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
         } 
     }
 
-    const editionSalePriceConverted = Number(editionSalesInfo.publicSalePrice)
-    const editionTotalMintPrice = String(mintQuantity.queryValue * editionSalePriceConverted)
-    const totalMintValueEth = ethers.utils.formatUnits(editionTotalMintPrice)
+    const totalMintValueEth = ethers.utils.formatEther(highestBid)
 
     const { 
         data: mintData, 
@@ -149,16 +158,7 @@ const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
             console.log("txn hash: ", mintWaitData.transactionHash)
             setPendingTx(false)
         }
-    })  
-
-    // max supply check
-    const maxSupplyCheck = (supply) => {
-        if (supply == 18446744073709551615) {
-            return "∞"
-        } else {
-            return supply
-        }
-    }
+    }) 
 
     useEffect(() => {
         fetchData();
@@ -173,15 +173,16 @@ const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
          return name;
     }
 
-    const approve =  async () => {
-        const tx = await getChillTokenContract().approve(editionAddress, ethers.constants.MaxUint256)
-        await tx.wait()
-        toast.success("Approved $CHILL! You can now buy a music NFT.")
-        return tx
+    const handleBidChange = (event) => {
+        const newValue = event.target.value
+        const bidChange = newValue && ethers.utils.parseEther(newValue)
+        const defaultBid = String(chillReservePrice) === String(highestBid) ? chillReservePrice : BigNumber.from(highestBid).mul(10).div(100).toString()
+        setBid(bidChange.toString() || defaultBid)
     }
 
     const isMainnet = activeChain?.id === 1;
     const inactiveText = started ? "Auction has Ended" : "Place First Bid to Start Auction"
+    const canBid = isActive && started
     return (
         <>
             {
@@ -261,9 +262,9 @@ const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
                                             </div>                                
                                         </div>                                                              
                                         <div className="w-full grid grid-cols-4 ">
-                                            <MintQuantityV2 mintQuantityCB={setMintQuantity} colorScheme="#ffffff"/>                              
+                                            {canBid && <Bid initialBid={ethers.utils.formatEther(minimumBid)} onChange={handleBidChange} colorScheme="#ffffff"/>}                              
                                             <div 
-                                                className="flex flex-row justify-center col-start-2 col-end-5  text-lg  p-3  w-full h-full border-[1px] border-solid border-[#f70500]"
+                                                className={`flex flex-row justify-center items-center ${canBid ? "col-start-3" : "col-start-1"} col-end-5  text-lg  p-3  w-full h-full border-[1px] border-solid border-[#f70500]`}
                                             >
                                                 {"" + totalMintValueEth + " $CHILL"}
                                             </div>             
@@ -284,7 +285,7 @@ const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
                                             ) : ( 
                                                 <>
                                                     {isActive || !started
-                                                    ? <CreateBidButton setPendingTx={setPendingTx} nftAddress={editionAddress} /> 
+                                                    ? <CreateBidButton tokenId={tokenId} setPendingTx={setPendingTx} nftAddress={editionAddress} bid={bid || minimumBid} onSuccess={updateAuctionData}/> 
                                                     : <AuctionSettleButton setPendingTx={setPendingTx} nftAddress={editionAddress} tokenId={tokenId} />
                                                     }
                                                 </>                                                  

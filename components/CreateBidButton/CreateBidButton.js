@@ -5,8 +5,9 @@ import getChillBalance from '@lib/getChillBalance'
 import { toast } from 'react-toastify'
 import { BigNumber, ethers } from 'ethers'
 import { getAuctionContract, getChillTokenContract } from '@lib/getContracts'
+import handleTxError from '@lib/handleTxError'
 
-const CreateBidButton = ({ setPendingTx, nftAddress }) => {
+const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid, onSuccess }) => {
   const { openConnectModal } = useConnectModal()
   const { switchNetwork } = useSwitchNetwork()
   const { chain: activeChain } = useNetwork()
@@ -41,8 +42,7 @@ const CreateBidButton = ({ setPendingTx, nftAddress }) => {
       console.log('ALLOWANCE', allow)
       const balance = await getChillBalance(address, signer)
       console.log('balance', balance)
-      const price = 1
-      const priceDifference = BigNumber.from(price).sub(balance)
+      const priceDifference = BigNumber.from(bid).sub(balance)
       if (priceDifference.gt(0)) {
         toast.error(
           `Not enough $CHILL. You need ${
@@ -50,23 +50,23 @@ const CreateBidButton = ({ setPendingTx, nftAddress }) => {
           } more $CHILL`
         )
       }
-      if (allow.sub(BigNumber.from(price)).lt(0)) {
+      if (allow.sub(BigNumber.from(bid)).lt(0)) {
         await approve()
       }
       const auctionContract = getAuctionContract(signer)
-      const tokenId = 2
       const findersFeeRecipient = '0x97a5810acDDF54371e3bBA01C41eFbA8ada268d6'
       const tx = await auctionContract.createBid(
         nftAddress,
         tokenId,
-        1000,
-        findersFeeRecipient,
-        { value: 1000000000000 }
+        bid,
+        findersFeeRecipient
       )
       await tx.wait()
       toast.success('bid placed')
+      onSuccess()
       setPendingTx(false)
     } catch (error) {
+      handleTxError(error)
       console.error(error)
       setPendingTx(false)
     }
