@@ -5,6 +5,7 @@ import getChillBalance from '@lib/getChillBalance'
 import { toast } from 'react-toastify'
 import { BigNumber, ethers } from 'ethers'
 import { getAuctionContract, getChillTokenContract } from '@lib/getContracts'
+import handleTxError from '@lib/handleTxError'
 
 const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid }) => {
   const { openConnectModal } = useConnectModal()
@@ -64,6 +65,7 @@ const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid }) => {
       toast.success('bid placed')
       setPendingTx(false)
     } catch (error) {
+      handleTxError(error)
       console.error(error)
       setPendingTx(false)
     }
