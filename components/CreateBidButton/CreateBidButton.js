@@ -39,9 +39,7 @@ const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid, onSuccess }) 
     setPendingTx(true)
     try {
       const allow = await getChillAllowance(address, signer)
-      console.log('ALLOWANCE', allow)
       const balance = await getChillBalance(address, signer)
-      console.log('balance', balance)
       const priceDifference = BigNumber.from(bid).sub(balance)
       if (priceDifference.gt(0)) {
         toast.error(
