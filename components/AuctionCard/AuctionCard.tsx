@@ -16,7 +16,7 @@ import Bid from '@components/Bid'
 
 const chillReservePrice = "8080000000000000000"
 
-const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
+const AuctionCard = ({ editionAddress, tokenId = 2 }) => {
     const {chain: activeChain} = useNetwork();
     const {data: signer} = useSigner()
     const [pendingTx, setPendingTx] = useState(false)
