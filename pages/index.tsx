@@ -4,6 +4,7 @@ import { Footer } from 'components/Footer'
 import EditionCard from 'components/EditionCard';
 import Image from 'next/image'
 import SeoHead from "components/SeoHead"
+import AuctionCard from '@components/AuctionCard';
 const Home: NextPage = () => {
   
   const isMainnet = Number(process.env.NEXT_PUBLIC_CHAIN_ID) === 1
@@ -55,6 +56,7 @@ const Home: NextPage = () => {
         />
       </div>
       <main className={` pb-8 sm:pb-[70px] text-white grid grid-rows-[${rowAndColumnCount}]  flex justify-center lg:grid-cols-3 sm:grid-cols-2  w-[90%] sm:w-[80%]  gap-y-8 sm:gap-y-[70px]  gap-x-0 sm:gap-x-[70px]`}> 
+     {process.env.NEXT_PUBLIC_BLUE_CHIP_AUCTION && <AuctionCard editionAddress={process.env.NEXT_PUBLIC_BLUE_CHIP_AUCTION} />}
       {
         chillDrops.map((collection, index) =>
           <EditionCard editionAddress={chillDrops[index]} key={collection} />
