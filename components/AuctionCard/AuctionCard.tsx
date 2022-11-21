@@ -163,7 +163,7 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
     useEffect(() => {
         fetchData();
         }, 
-        [signer]
+        []
     )
 
     const truncateName = (name) => {
