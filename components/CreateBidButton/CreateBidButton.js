@@ -2,9 +2,14 @@ import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { allChains, useAccount, useNetwork, useSigner, useSwitchNetwork } from 'wagmi'
 import getChillAllowance from '@lib/getChillAllowance'
 import getChillBalance from '@lib/getChillBalance'
+import isAuctionModuleApproved from '@lib/isAuctionModuleApproved'
 import { toast } from 'react-toastify'
 import { BigNumber, ethers } from 'ethers'
-import { getAuctionContract, getChillTokenContract } from '@lib/getContracts'
+import {
+  erc20TransferHelper,
+  getAuctionContract,
+  getChillTokenContract,
+} from '@lib/getContracts'
 import handleTxError from '@lib/handleTxError'
 
 const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid, onSuccess }) => {
@@ -16,7 +21,8 @@ const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid, onSuccess }) 
 
   const approve = async () => {
     const contract = getChillTokenContract(signer)
-    const tx = await contract.approve(nftAddress, ethers.constants.MaxUint256)
+    console.log('con')
+    const tx = await contract.approve(erc20TransferHelper, ethers.constants.MaxUint256)
     await tx.wait()
     toast.success('Approved $CHILL! You can now buy a music NFT.')
     return tx
@@ -41,6 +47,8 @@ const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid, onSuccess }) 
       console.log('allow', allow)
       const balance = await getChillBalance(address, signer)
       console.log('balance', balance)
+      const isModuleApproved = await isAuctionModuleApproved(address, signer)
+      console.log('IS MODULE APPROVED', isModuleApproved)
       const priceDifference = BigNumber.from(bid).sub(balance)
       console.log('priceDifference', priceDifference)
       if (priceDifference.gt(0)) {
@@ -54,6 +62,7 @@ const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid, onSuccess }) 
         console.log('approving...')
         await approve()
       }
+
       const auctionContract = getAuctionContract(signer)
       console.log('auctionContract', auctionContract)
       const findersFeeRecipient = '0x97a5810acDDF54371e3bBA01C41eFbA8ada268d6'
