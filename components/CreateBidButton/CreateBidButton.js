@@ -15,10 +15,8 @@ const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid, onSuccess }) 
   const { data: signer } = useSigner()
 
   const approve = async () => {
-    const tx = await getChillTokenContract().approve(
-      nftAddress,
-      ethers.constants.MaxUint256
-    )
+    const contract = getChillTokenContract(signer)
+    const tx = await contract.approve(nftAddress, ethers.constants.MaxUint256)
     await tx.wait()
     toast.success('Approved $CHILL! You can now buy a music NFT.')
     return tx
