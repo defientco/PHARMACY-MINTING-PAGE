@@ -11,7 +11,6 @@ import { ipfsImage } from '@lib/helpers'
 import metadataRendererAbi from '@lib/MetadataRenderer-abi.json'
 import { getAuctionContract, getChillTokenContract } from '@lib/getContracts'
 import { CountdownTimer } from '@components/CountdownTimer'
-import { toast } from 'react-toastify'
 import Bid from '@components/Bid'
 
 const chillReservePrice = "8080000000000000000"
@@ -70,7 +69,6 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
         const active = BigNumber.from(now).lt(endDate)
         const {highestBid, reservePrice} = auctionInfo;
         const isReserveMet = highestBid.gt(0);
-        console.log("auctionForNft", auctionInfo.highestBidder)
         setAuctionForNft(auctionInfo)
         setHighestBid(isReserveMet ? highestBid.toString() : chillReservePrice)
         setIsActive(active)
@@ -183,8 +181,6 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
         const defaultBid = String(chillReservePrice) === String(highestBid) ? chillReservePrice : BigNumber.from(highestBid).mul(10).div(100).toString()
         setBid(bidChange.toString() || defaultBid)
     }
-
-    console.log("HIGHEST BIDDER", auctionForNFT?.highestBidder)
 
     const isMainnet = activeChain?.id === 1;
     const inactiveText = started ? "Auction has Ended" : "Place First Bid to Start Auction"
