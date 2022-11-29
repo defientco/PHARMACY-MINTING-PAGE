@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { useContractWrite, useNetwork, useSigner, useWaitForTransaction } from "wagmi"
+import { useAccount, useContractWrite, useNetwork, useSigner, useWaitForTransaction } from "wagmi"
 import { useState, useEffect } from 'react'
 import { BigNumber, ethers } from 'ethers'
 import MintQuantityV2 from 'components/MintQuantityV2'
@@ -19,6 +19,7 @@ const chillReservePrice = "8080000000000000000"
 const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
     const {chain: activeChain} = useNetwork();
     const {data: signer} = useSigner()
+    const {address} = useAccount()
     const [pendingTx, setPendingTx] = useState(false)
     const [mintQuantity, setMintQuantity] = useState({ name: '1', queryValue: 1 })
     const [loading, setLoading] = useState(false)
@@ -39,6 +40,7 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
     const [endTime, setEndTime] = useState(0)
     const [started, setStarted] = useState(false)
     const [highestBid, setHighestBid] = useState(0)
+    const [auctionForNFT, setAuctionForNft] = useState({} as any)
     const [bid, setBid] = useState("")
     const [minimumBid, setMinimumBid] = useState(0)
     const totalSupply = editionSalesInfo.totalMinted     
@@ -61,13 +63,15 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
 
     const isAuctionSettled = async(provider) => {
         const contract = getAuctionContract(signer || provider);
-        const auctionForNft = await contract.auctionForNFT(editionAddress, tokenId)
-        const hasntStarted = auctionForNft.firstBidTime.toString() == "0"
+        const auctionInfo = await contract.auctionForNFT(editionAddress, tokenId)
+        const hasntStarted = auctionInfo.firstBidTime.toString() == "0"
         const now = Math.round(new Date().getTime() / 1000)
-        const endDate = auctionForNft.firstBidTime.add(auctionForNft.duration)
+        const endDate = auctionInfo.firstBidTime.add(auctionInfo.duration)
         const active = BigNumber.from(now).lt(endDate)
-        const {highestBid, reservePrice} = auctionForNft;
+        const {highestBid, reservePrice} = auctionInfo;
         const isReserveMet = highestBid.gt(0);
+        console.log("auctionForNft", auctionInfo.highestBidder)
+        setAuctionForNft(auctionInfo)
         setHighestBid(isReserveMet ? highestBid.toString() : chillReservePrice)
         setIsActive(active)
         setStarted(!hasntStarted)
@@ -180,6 +184,8 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
         setBid(bidChange.toString() || defaultBid)
     }
 
+    console.log("HIGHEST BIDDER", auctionForNFT?.highestBidder)
+
     const isMainnet = activeChain?.id === 1;
     const inactiveText = started ? "Auction has Ended" : "Place First Bid to Start Auction"
     const canBid = isActive && started
@@ -245,7 +251,7 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
                                     ) : (
                                     <div className="w-full ">
                                         <div className=" flex flex-row flex-wrap w-full pb-4 space-y-2 ">
-                                            <div className="ml-3 mt-3 flex flex-row w-full text-xl">
+                                            <div className="ml-3 mt-3 flex flex-col w-full text-xl">
                                                 <a
                                                     className="hover:underline decoration-1"
                                                     target="_blank"
@@ -254,6 +260,7 @@ const AuctionCard = ({ editionAddress, tokenId = 3 }) => {
                                                 >
                                                     {truncateName(editionSalesInfo.name)}
                                                 </a>
+                                                {auctionForNFT.highestBidder === address && <div className="text-sm">(you are the highest bidder)</div>}
                                             </div>
                                         </div>
                                         <div className=" justify-evenly flex flex-row flex-wrap w-full py-3 border-[1px] border-[#f70500]">
