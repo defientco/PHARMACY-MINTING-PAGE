@@ -2,9 +2,14 @@ import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { allChains, useAccount, useNetwork, useSigner, useSwitchNetwork } from 'wagmi'
 import getChillAllowance from '@lib/getChillAllowance'
 import getChillBalance from '@lib/getChillBalance'
+import isAuctionModuleApproved from '@lib/isAuctionModuleApproved'
 import { toast } from 'react-toastify'
 import { BigNumber, ethers } from 'ethers'
-import { getAuctionContract, getChillTokenContract } from '@lib/getContracts'
+import {
+  erc20TransferHelper,
+  getAuctionContract,
+  getChillTokenContract,
+} from '@lib/getContracts'
 import handleTxError from '@lib/handleTxError'
 
 const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid, onSuccess }) => {
@@ -15,10 +20,8 @@ const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid, onSuccess }) 
   const { data: signer } = useSigner()
 
   const approve = async () => {
-    const tx = await getChillTokenContract().approve(
-      nftAddress,
-      ethers.constants.MaxUint256
-    )
+    const contract = getChillTokenContract(signer)
+    const tx = await contract.approve(erc20TransferHelper, ethers.constants.MaxUint256)
     await tx.wait()
     toast.success('Approved $CHILL! You can now buy a music NFT.')
     return tx
@@ -40,6 +43,7 @@ const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid, onSuccess }) 
     try {
       const allow = await getChillAllowance(address, signer)
       const balance = await getChillBalance(address, signer)
+      const isModuleApproved = await isAuctionModuleApproved(address, signer)
       const priceDifference = BigNumber.from(bid).sub(balance)
       if (priceDifference.gt(0)) {
         toast.error(
@@ -51,6 +55,7 @@ const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid, onSuccess }) 
       if (allow.sub(BigNumber.from(bid)).lt(0)) {
         await approve()
       }
+
       const auctionContract = getAuctionContract(signer)
       const findersFeeRecipient = '0x97a5810acDDF54371e3bBA01C41eFbA8ada268d6'
       const tx = await auctionContract.createBid(
@@ -65,7 +70,6 @@ const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid, onSuccess }) 
       setPendingTx(false)
     } catch (error) {
       handleTxError(error)
-      console.error(error)
       setPendingTx(false)
     }
   }
