@@ -36,13 +36,11 @@ const CreateAuctionButton = ({ contractAddress, tokenId }) => {
 
   const isApprovedForAll = async (contract) => {
     const isApproved = await contract.isApprovedForAll(address, erc721TransferHelper)
-    console.log('isApproved', isApproved)
     return isApproved
   }
 
   const createAuction = async () => {
     try {
-      console.log('CREATING AUCTION')
       const contract = getAuctionContract()
       const duration = 180
       const reservePrice = '8080000000000000000'
@@ -63,7 +61,6 @@ const CreateAuctionButton = ({ contractAddress, tokenId }) => {
       await tx.wait()
       toast.success('auction created')
       const auction = await contract.auctionForNFT(contractAddress, tokenId)
-      console.log('AUCTION', auction)
     } catch (err) {
       console.error(err)
       toast.error('error creating auction')
@@ -94,10 +91,7 @@ const CreateAuctionButton = ({ contractAddress, tokenId }) => {
 
     setIsPendingTx(true)
     try {
-      console.log('contractAddress', contractAddress)
-      console.log('tokenId', tokenId)
       const contract = getNftContract()
-      console.log('CONTRACT', contract)
       const isApproved = await isApprovedForAll(contract)
       if (!isApproved) {
         await approveForAll(contract)
@@ -105,9 +99,7 @@ const CreateAuctionButton = ({ contractAddress, tokenId }) => {
         return
       }
 
-      console.log('checking isModuleApproved')
       const isModuleApproved = await isAuctionModuleApproved(address, signer)
-      console.log('isModuleApproved', isModuleApproved)
       if (!isModuleApproved) {
         setIsPendingTx(false)
         return
