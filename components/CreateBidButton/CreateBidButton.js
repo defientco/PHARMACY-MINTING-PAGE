@@ -21,7 +21,6 @@ const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid, onSuccess }) 
 
   const approve = async () => {
     const contract = getChillTokenContract(signer)
-    console.log('con')
     const tx = await contract.approve(erc20TransferHelper, ethers.constants.MaxUint256)
     await tx.wait()
     toast.success('Approved $CHILL! You can now buy a music NFT.')
@@ -42,15 +41,10 @@ const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid, onSuccess }) 
     }
     setPendingTx(true)
     try {
-      console.log('getting allowance')
       const allow = await getChillAllowance(address, signer)
-      console.log('allow', allow)
       const balance = await getChillBalance(address, signer)
-      console.log('balance', balance)
       const isModuleApproved = await isAuctionModuleApproved(address, signer)
-      console.log('IS MODULE APPROVED', isModuleApproved)
       const priceDifference = BigNumber.from(bid).sub(balance)
-      console.log('priceDifference', priceDifference)
       if (priceDifference.gt(0)) {
         toast.error(
           `Not enough $CHILL. You need ${
@@ -59,14 +53,11 @@ const CreateBidButton = ({ setPendingTx, nftAddress, tokenId, bid, onSuccess }) 
         )
       }
       if (allow.sub(BigNumber.from(bid)).lt(0)) {
-        console.log('approving...')
         await approve()
       }
 
       const auctionContract = getAuctionContract(signer)
-      console.log('auctionContract', auctionContract)
       const findersFeeRecipient = '0x97a5810acDDF54371e3bBA01C41eFbA8ada268d6'
-      console.log('creatingBid...')
       const tx = await auctionContract.createBid(
         nftAddress,
         tokenId,
