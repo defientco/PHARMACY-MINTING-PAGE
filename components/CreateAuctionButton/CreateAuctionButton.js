@@ -42,6 +42,7 @@ const CreateAuctionButton = ({ contractAddress, tokenId }) => {
 
   const createAuction = async () => {
     try {
+      console.log('CREATING AUCTION')
       const contract = getAuctionContract()
       const duration = 180
       const reservePrice = '8080000000000000000'
@@ -92,24 +93,29 @@ const CreateAuctionButton = ({ contractAddress, tokenId }) => {
     }
 
     setIsPendingTx(true)
-    console.log('contractAddress', contractAddress)
-    console.log('tokenId', tokenId)
-    const contract = getNftContract()
-    console.log('CONTRACT', contract)
-    const isApproved = await isApprovedForAll(contract)
-    if (!isApproved) {
-      await approveForAll(contract)
-      setIsPendingTx(false)
-      return
-    }
+    try {
+      console.log('contractAddress', contractAddress)
+      console.log('tokenId', tokenId)
+      const contract = getNftContract()
+      console.log('CONTRACT', contract)
+      const isApproved = await isApprovedForAll(contract)
+      if (!isApproved) {
+        await approveForAll(contract)
+        setIsPendingTx(false)
+        return
+      }
 
-    const isModuleApproved = await isAuctionModuleApproved()
-    console.log('isModuleApproved', isModuleApproved)
-    if (!isModuleApproved) {
-      setIsPendingTx(false)
-      return
+      console.log('checking isModuleApproved')
+      const isModuleApproved = await isAuctionModuleApproved(address, signer)
+      console.log('isModuleApproved', isModuleApproved)
+      if (!isModuleApproved) {
+        setIsPendingTx(false)
+        return
+      }
+      await createAuction()
+    } catch (err) {
+      console.error(err)
     }
-    await createAuction()
     setIsPendingTx(false)
   }
 
