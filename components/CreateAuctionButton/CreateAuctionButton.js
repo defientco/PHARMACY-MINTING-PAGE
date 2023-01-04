@@ -42,7 +42,9 @@ const CreateAuctionButton = ({ contractAddress, tokenId }) => {
   const createAuction = async () => {
     try {
       const contract = getAuctionContract()
-      const duration = 180
+      const threeMinutes = 180
+      const oneMonth = 2592000
+      const duration = isEthereum ? oneMonth : threeMinutes
       const reservePrice = '8080000000000000000'
       const sellerFundsRecipient = address
       const startTime = 0
