@@ -70,14 +70,10 @@ const EditionCard = ({ editionAddress }) => {
         const { data } = await axios.get(metadataURI)
         metadata = data
       } catch (err) {
-        console.log('CAUGHT YOU :-)', metadataRendererContract)
         const info = await contract.tokenURI('1')
-        console.log('INFO', info)
         const index = info.indexOf(',')
-        console.log('index', info.substring(index + 1))
         const encoded = info.substring(index + 1)
         const json = atob(encoded)
-        console.log('json', JSON.parse(json))
         metadata = JSON.parse(json)
       }
 
@@ -104,7 +100,6 @@ const EditionCard = ({ editionAddress }) => {
 
       const animationURI = metadata?.losslessAudio || ''
       const animnationIPFSGateway = ipfsImage(animationURI)
-      console.log('animnationIPFSGateway', animnationIPFSGateway)
       setEditionsAnimationSRC(animnationIPFSGateway)
     } catch (error) {
       console.error(error.message)
