@@ -9,6 +9,7 @@ const Home: NextPage = () => {
   const isMainnet = Number(process.env.NEXT_PUBLIC_CHAIN_ID) === 1
 
   const goerliDrops = [
+    '0xfB42971283978A455529b5441544324AA709971a', // Pudgy Raffle
     '0x5053A2537733EB1108219b5Db0FCb2E472369D79',
     '0x48ba968a3b0925f834c704ca098ca895142c7aab',
     '0x1dd9b6c2b23b79d93304935279bcf877f588ec22',
@@ -23,6 +24,7 @@ const Home: NextPage = () => {
   ]
 
   const mainnetDrops = [
+    '0x0aa8f25bbbc462b70596af2f09190f707e319fe9', // Pudgy Raffle
     '0xDe879FFB0e69c7165406C72B79Bc6025E5cd7458',
     '0x48f2d790c3da620b908d954ee98fa1d50c7eb6bd',
     '0x44274C83C01a6A5E2a4C22b2ADF6ce388cEa75ba',
