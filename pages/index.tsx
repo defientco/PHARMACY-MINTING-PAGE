@@ -24,6 +24,7 @@ const Home: NextPage = () => {
   ]
 
   const mainnetDrops = [
+    '0x0aa8f25bbbc462b70596af2f09190f707e319fe9', // Pudgy Raffle
     '0xDe879FFB0e69c7165406C72B79Bc6025E5cd7458',
     '0x48f2d790c3da620b908d954ee98fa1d50c7eb6bd',
     '0x44274C83C01a6A5E2a4C22b2ADF6ce388cEa75ba',
