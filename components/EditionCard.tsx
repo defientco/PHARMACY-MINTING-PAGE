@@ -110,7 +110,7 @@ const EditionCard = ({ editionAddress }) => {
 
   console.log('mintQuantity', mintQuantity)
   const editionTotalMintPrice = String(
-    ethers.BigNumber.from(editionSalesInfo.publicSalePrice || 0).mul(mintQuantity)
+    ethers.BigNumber.from(editionSalesInfo?.publicSalePrice || 0).mul(mintQuantity || 0)
   )
   const totalMintValueEth = ethers.utils.formatUnits(editionTotalMintPrice)
 
