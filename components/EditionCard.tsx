@@ -27,7 +27,7 @@ const EditionCard = ({ editionAddress }) => {
   const { switchNetwork } = useSwitchNetwork()
   const { openConnectModal } = useConnectModal()
   const [pendingTx, setPendingTx] = useState(false)
-  const [mintQuantity, setMintQuantity] = useState({ name: '1', queryValue: 1 })
+  const [mintQuantity, setMintQuantity] = useState(1)
   const [loading, setLoading] = useState(false)
   const [editionsImageSRC, setEditionsImageSRC] = useState('/placeholder_400_400.png')
   const [editionsAnimationSRC, setEditionsAnimationSRC] = useState('')
@@ -108,9 +108,9 @@ const EditionCard = ({ editionAddress }) => {
     }
   }
 
-  const editionSalePriceConverted = Number(editionSalesInfo.publicSalePrice)
+  console.log('mintQuantity', mintQuantity)
   const editionTotalMintPrice = String(
-    mintQuantity.queryValue * editionSalePriceConverted
+    ethers.BigNumber.from(editionSalesInfo.publicSalePrice || 0).mul(mintQuantity)
   )
   const totalMintValueEth = ethers.utils.formatUnits(editionTotalMintPrice)
 
@@ -127,7 +127,7 @@ const EditionCard = ({ editionAddress }) => {
     addressOrName: editionAddress,
     contractInterface: abi,
     functionName: 'purchase',
-    args: [mintQuantity.queryValue],
+    args: [mintQuantity],
     onError(error, variables, context) {
       console.error('error', JSON.stringify(error.message))
       setPendingTx(false)
@@ -191,7 +191,7 @@ const EditionCard = ({ editionAddress }) => {
         )
       }
 
-      if (allow.sub(BigNumber.from(price).mul(mintQuantity.queryValue)).lt(0)) {
+      if (allow.sub(BigNumber.from(price).mul(mintQuantity)).lt(0)) {
         await approve()
       }
       mintWrite()
@@ -271,7 +271,7 @@ const EditionCard = ({ editionAddress }) => {
                       href={`https://${
                         isMainnet ? 'opensea.io' : 'testnets.opensea.io'
                       }/assets/${isMainnet ? 'ethereum' : 'goerli'}/${editionAddress}/${
-                        Number(totalSupply) + Number(mintQuantity.queryValue)
+                        Number(totalSupply) + Number(mintQuantity)
                       }`}
                     >
                       View on OpenSea
