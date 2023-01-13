@@ -328,10 +328,7 @@ const EditionCard = ({ editionAddress }) => {
                         </div>
                       </div>
                       <div className="w-full grid grid-cols-4 ">
-                        <MintQuantityV2
-                          mintQuantityCB={setMintQuantity}
-                          colorScheme="#ffffff"
-                        />
+                        <MintQuantityV2 mintQuantityCB={setMintQuantity} />
                         <div className="flex flex-row justify-center col-start-2 col-end-5  text-lg  p-3  w-full h-full border-[1px] border-solid border-[#f70500]">
                           {'' + totalMintValueEth + ' $CHILL'}
                         </div>
